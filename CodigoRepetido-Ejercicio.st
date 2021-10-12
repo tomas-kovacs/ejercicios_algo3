@@ -21,24 +21,29 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/11/2021 19:47:32'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 09:37:00'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
-	| customerBook |
+	| customerBook operationAddCustomer |
 	
 	customerBook := CustomerBook new.
-	self validateOperationRunningTimeOf: true ofCustomerNamed: 'John Lennon' in: customerBook withTime: 50.
+	operationAddCustomer := [ customerBook addCustomerNamed: 'John Lennon' ].
+	
+	self validateOperationRunningTimeOf: operationAddCustomer withTime: 50.
 
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/11/2021 19:47:32'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 09:37:07'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook customerName |
+	| customerBook customerName operationRemoveCustomer |
 	customerBook := CustomerBook new.
 	customerName := 'Paul McCartney'.
+	operationRemoveCustomer := [ customerBook removeCustomerNamed: customerName ].
+	
 	customerBook addCustomerNamed: customerName.
-	self validateOperationRunningTimeOf: false ofCustomerNamed: customerName in: customerBook withTime: 100.! !
+	
+	self validateOperationRunningTimeOf: operationRemoveCustomer withTime: 100.! !
 
 !CustomerBookTest methodsFor: 'tests' stamp: 'HernanWilkinson 5/9/2012 18:12'!
 test03CanNotAddACustomerWithEmptyName 
@@ -54,10 +59,14 @@ test03CanNotAddACustomerWithEmptyName
 			self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
 			self assert: customerBook isEmpty ]! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/11/2021 19:45:24'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 09:48:21'!
 test04CanNotRemoveAnInvalidCustomer
 	
-	self canNotPerformOperation: true withCustomerNamed: 'Paul McCartney' failsWith: NotFound.! !
+	| customerBook operationRemoveCustomer |
+	customerBook := CustomerBook new.
+	operationRemoveCustomer := [ customerBook removeCustomerNamed: 'Paul McCartney'].
+	
+	self canNotPerformOperation: operationRemoveCustomer failsWith: NotFound.! !
 
 !CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/11/2021 20:02:55'!
 test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
@@ -103,10 +112,14 @@ test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/11/2021 19:46:01'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 09:48:33'!
 test07CanNotSuspendAnInvalidCustomer
 	
-	self canNotPerformOperation: false withCustomerNamed: 'Ringo Starr' failsWith: CantSuspend.
+	| customerBook operationSuspendCustomer |
+	customerBook := CustomerBook new.
+	operationSuspendCustomer := [ customerBook suspendCustomerNamed: 'Ringo Starr'].
+	
+	self canNotPerformOperation: operationSuspendCustomer failsWith: CantSuspend.
 
 ! !
 
@@ -128,9 +141,24 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]
 ! !
 
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/11/2021 18:48:39'!
+testValidateRunningTimeOf: operation withTime: time
 
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/11/2021 19:43:25'!
-canNotPerformOperation: operationWithCustomer withCustomerNamed: customerName failsWith: errorType
+	| customerBook millisecondsBeforeRunning millisecondsAfterRunning |
+	
+	customerBook := CustomerBook new.
+	
+	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
+	(#operation asMessageWith: 'John Lennon') sendTo: customerBook.
+	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
+	
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (time * millisecond)
+	
+! !
+
+
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'TK 10/12/2021 09:48:07'!
+canNotPerformOperation: operationWithCustomer failsWith: errorType
 
 	
 	| customerBook johnLennon |
@@ -139,28 +167,21 @@ canNotPerformOperation: operationWithCustomer withCustomerNamed: customerName fa
 	johnLennon := 'John Lennon'.
 	customerBook addCustomerNamed: johnLennon.
 	
-	
-	[operationWithCustomer 
-		ifTrue: [
-			customerBook removeCustomerNamed: customerName] 
-		ifFalse: [
-			customerBook suspendCustomerNamed: customerName].
+	[ operationWithCustomer value.
 	self fail]
 		on: errorType
 		do: [ :anError | 
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: johnLennon) ]! !
 
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/11/2021 19:47:32'!
-validateOperationRunningTimeOf: operationWithCustomer ofCustomerNamed: customerName in: customerBook withTime: operationRunningTime
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'TK 10/12/2021 09:36:43'!
+validateOperationRunningTimeOf: operationWithCustomer withTime: operationRunningTime
 	
 	
 	| millisecondsAfterRunning millisecondsBeforeRunning |
 
 	millisecondsBeforeRunning := Time millisecondClockValue * millisecond.
-	operationWithCustomer ifTrue: [
-		customerBook addCustomerNamed: customerName] ifFalse: [
-		customerBook removeCustomerNamed: customerName].
+	operationWithCustomer value.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
 	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (operationRunningTime * millisecond)! !
