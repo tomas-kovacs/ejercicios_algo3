@@ -21,12 +21,11 @@ TestCase subclass: #CustomerBookTest
 	poolDictionaries: ''
 	category: 'CodigoRepetido-Ejercicio'!
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/12/2021 14:55:36'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 19:34:01'!
 test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 	| customerBook operationAddANewCustomer |
 	
 	customerBook := CustomerBook new.
-	"customerBook := CustomerBook instanceANewBookAndAddANewCustomerNamed: 'John Lennon'."
 		
 	operationAddANewCustomer := [ customerBook addCustomerNamed: 'John Lennon' ].
 	
@@ -90,7 +89,7 @@ test05SuspendingACustomerShouldNotRemoveItFromCustomerBook
 	
 ! !
 
-!CustomerBookTest methodsFor: 'tests' stamp: 'MW 10/12/2021 17:33:40'!
+!CustomerBookTest methodsFor: 'tests' stamp: 'TK 10/12/2021 19:35:47'!
 test06RemovingASuspendedCustomerShouldRemoveItFromCustomerBook
 
 	| customerBook customerName operationExtraWithACustomer |
@@ -147,22 +146,16 @@ canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith:
 			self assert: customerBook numberOfCustomers = 1.
 			self assert: (customerBook includesCustomerNamed: 'John Lennon') ]! !
 
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/12/2021 17:32:16'!
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'TK 10/12/2021 19:40:51'!
 validateAmountOfCustomersIn: customerBook withExpectedValue: expectedValue using: customerName and: operationExtraWithCustomer
-	"| customerBook paulMcCartney|
-	
-	customerBook := CustomerBook new.
-	paulMcCartney := 'Paul McCartney'.
-	
-	customerBook addCustomerNamed: customerName."
+
 	customerBook suspendCustomerNamed: customerName.
-	
+
 	operationExtraWithCustomer value.
-	
+
 	self assert: 0 equals: customerBook numberOfActiveCustomers.
 	self assert: expectedValue equals: customerBook numberOfSuspendedCustomers.
-	self assert: expectedValue equals: customerBook numberOfCustomers.
-	"self assert: (customerBook includesCustomerNamed: paulMcCartney)"! !
+	self assert: expectedValue equals: customerBook numberOfCustomers.! !
 
 !CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/12/2021 14:13:23'!
 validateOperationRunningTimeOf: operationWithCustomer withTime: operationRunningTime
@@ -206,44 +199,26 @@ initialize
 	suspended:= OrderedCollection new.! !
 
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'TK 10/12/2021 20:23:31'!
 addCustomerNamed: aName
 
 	aName isEmpty ifTrue: [ self signalCustomerNameCannotBeEmpty ].
-	((active includes: aName) or: [suspended includes: aName]) ifTrue: [ self signalCustomerAlreadyExists ].
+	(self includesCustomerNamed: aName) ifTrue: [ self signalCustomerAlreadyExists ].
 	
 	active add: aName ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'TK 10/12/2021 20:21:31'!
 removeCustomerNamed: aName 
  
-	1 to: active size do: 
-	[ :index |
-		aName = (active at: index)
-			ifTrue: [
-				active removeAt: index.
-				^ aName 
-			] 
-	].
-
-	1 to: suspended size do: 	
-	[ :index |
-		aName = (suspended at: index)
-			ifTrue: [
-				suspended removeAt: index.
-				^ aName 
-			] 
-	].
-	
+	(self removeCustomerNamedIfFound: aName inCollection: active) ifTrue: [ ^ aName ].
+	(self removeCustomerNamedIfFound: aName inCollection: suspended) ifTrue: [ ^ aName ].
 	^ NotFound signal.
 ! !
 
-!CustomerBook methodsFor: 'customer management' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'customer management' stamp: 'TK 10/12/2021 20:25:08'!
 suspendCustomerNamed: aName 
-	
-	(active includes: aName) ifFalse: [^CantSuspend signal].
-	
-	active remove: aName.
+
+	active remove: aName ifAbsent: [ ^ CantSuspend signal ].
 	
 	suspended add: aName
 ! !
@@ -276,6 +251,13 @@ isEmpty
 	^active isEmpty and: [ suspended isEmpty ]! !
 
 
+!CustomerBook methodsFor: 'customer management - private' stamp: 'TK 10/12/2021 20:21:31'!
+removeCustomerNamedIfFound: aName inCollection: collection
+ 
+	collection remove: aName ifAbsent: [ ^ false ].
+	^ true! !
+
+
 !CustomerBook methodsFor: 'signal errors' stamp: 'HernanWilkinson 7/6/2011 17:52'!
 signalCustomerAlreadyExists 
 
@@ -285,7 +267,6 @@ signalCustomerAlreadyExists
 signalCustomerNameCannotBeEmpty 
 
 	self error: self class customerCanNotBeEmptyErrorMessage ! !
-
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
