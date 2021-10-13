@@ -140,17 +140,7 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 ! !
 
 
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/12/2021 17:26:03'!
-canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith: errorType
-	
-	[ operationWithInvalidCustomer value.
-	self fail]
-		on: errorType
-		do: [ :anError | 
-			self assert: customerBook numberOfCustomers = 1.
-			self assert: (customerBook includesCustomerNamed: 'John Lennon') ]! !
-
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 11:48:26'!
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 15:24:36'!
 canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith: errorType andValidates: expectedValues 
 	
 	[ operationWithInvalidCustomer value.
@@ -158,21 +148,10 @@ canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith:
 		on: errorType
 		do: [ :anError | expectedValues value].! !
 
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'TK 10/12/2021 19:40:51'!
-validateAmountOfCustomersIn: customerBook withExpectedValue: expectedValue using: customerName and: operationExtraWithCustomer
-
-	customerBook suspendCustomerNamed: customerName.
-
-	operationExtraWithCustomer value.
-
-	self assert: 0 equals: customerBook numberOfActiveCustomers.
-	self assert: expectedValue equals: customerBook numberOfSuspendedCustomers.
-	self assert: expectedValue equals: customerBook numberOfCustomers.! !
-
-!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 14:30:34'!
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 15:42:04'!
 validateExpectedValuesTests3: customerBook withError: anError
 
-	self assert: (anError messageText) = (CustomerBook customerCanNotBeEmptyErrorMessage).
+	self assert: anError messageText = (CustomerBook customerCanNotBeEmptyErrorMessage).
 	self assert: customerBook isEmpty.! !
 
 !CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 14:40:38'!
@@ -202,22 +181,6 @@ validateOperationRunningTimeOf: operationWithCustomer withTime: operationRunning
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
 	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (operationRunningTime * millisecond)! !
-
-
-!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:41:09'!
-validateEmptyNameError
-	! !
-
-!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:42:40'!
-validateEmptyNameIn: customerBook with: anError
-	self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
-	self assert: customerBook isEmpty 
-! !
-
-!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:44:26'!
-validateNumberOfCustomersIn: customerBook
-	self assert: customerBook numberOfCustomers = 1.
-	self assert: (customerBook includesCustomerNamed: 'John Lennon') ! !
 
 
 !classDefinition: #CustomerBook category: 'CodigoRepetido-Ejercicio'!
