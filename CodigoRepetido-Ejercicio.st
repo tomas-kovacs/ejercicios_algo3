@@ -140,6 +140,16 @@ test08CanNotSuspendAnAlreadySuspendedCustomer
 ! !
 
 
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/12/2021 17:26:03'!
+canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith: errorType
+	
+	[ operationWithInvalidCustomer value.
+	self fail]
+		on: errorType
+		do: [ :anError | 
+			self assert: customerBook numberOfCustomers = 1.
+			self assert: (customerBook includesCustomerNamed: 'John Lennon') ]! !
+
 !CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 11:48:26'!
 canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith: errorType andValidates: expectedValues 
 	
@@ -147,6 +157,17 @@ canNotPerformOperation: operationWithInvalidCustomer in: customerBook failsWith:
 	self fail]
 		on: errorType
 		do: [ :anError | expectedValues value].! !
+
+!CustomerBookTest methodsFor: 'tests - private' stamp: 'TK 10/12/2021 19:40:51'!
+validateAmountOfCustomersIn: customerBook withExpectedValue: expectedValue using: customerName and: operationExtraWithCustomer
+
+	customerBook suspendCustomerNamed: customerName.
+
+	operationExtraWithCustomer value.
+
+	self assert: 0 equals: customerBook numberOfActiveCustomers.
+	self assert: expectedValue equals: customerBook numberOfSuspendedCustomers.
+	self assert: expectedValue equals: customerBook numberOfCustomers.! !
 
 !CustomerBookTest methodsFor: 'tests - private' stamp: 'MW 10/13/2021 14:30:34'!
 validateExpectedValuesTests3: customerBook withError: anError
@@ -181,6 +202,22 @@ validateOperationRunningTimeOf: operationWithCustomer withTime: operationRunning
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
 	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (operationRunningTime * millisecond)! !
+
+
+!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:41:09'!
+validateEmptyNameError
+	! !
+
+!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:42:40'!
+validateEmptyNameIn: customerBook with: anError
+	self assert: anError messageText = CustomerBook customerCanNotBeEmptyErrorMessage.
+	self assert: customerBook isEmpty 
+! !
+
+!CustomerBookTest methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 15:44:26'!
+validateNumberOfCustomersIn: customerBook
+	self assert: customerBook numberOfCustomers = 1.
+	self assert: (customerBook includesCustomerNamed: 'John Lennon') ! !
 
 
 !classDefinition: #CustomerBook category: 'CodigoRepetido-Ejercicio'!
@@ -227,10 +264,10 @@ numberOfActiveCustomers
 	
 	^active size! !
 
-!CustomerBook methodsFor: 'accessing' stamp: 'NR 4/3/2019 10:14:26'!
+!CustomerBook methodsFor: 'accessing' stamp: 'TK 10/13/2021 14:57:37'!
 numberOfCustomers
 	
-	^active size + suspended size! !
+	^ self numberOfActiveCustomers + self numberOfSuspendedCustomers! !
 
 !CustomerBook methodsFor: 'accessing' stamp: 'NR 9/19/2018 17:36:09'!
 numberOfSuspendedCustomers
@@ -249,6 +286,13 @@ isEmpty
 	^active isEmpty and: [ suspended isEmpty ]! !
 
 
+!CustomerBook methodsFor: 'customer management - private' stamp: 'TK 10/12/2021 20:21:31'!
+removeCustomerNamedIfFound: aName inCollection: collection
+ 
+	collection remove: aName ifAbsent: [ ^ false ].
+	^ true! !
+
+
 !CustomerBook methodsFor: 'signal errors' stamp: 'HernanWilkinson 7/6/2011 17:52'!
 signalCustomerAlreadyExists 
 
@@ -258,13 +302,6 @@ signalCustomerAlreadyExists
 signalCustomerNameCannotBeEmpty 
 
 	self error: self class customerCanNotBeEmptyErrorMessage ! !
-
-
-!CustomerBook methodsFor: 'customer management - private' stamp: 'TK 10/12/2021 20:21:31'!
-removeCustomerNamedIfFound: aName inCollection: collection
- 
-	collection remove: aName ifAbsent: [ ^ false ].
-	^ true! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -283,7 +320,7 @@ customerCanNotBeEmptyErrorMessage
 	^'Customer Name Cannot Be Empty'! !
 
 
-!CustomerBook class methodsFor: 'as yet unclassified' stamp: 'MW 10/12/2021 17:01:58'!
+!CustomerBook class methodsFor: 'instance' stamp: 'MW 10/12/2021 17:01:58'!
 instanceANewBookAndAddANewCustomerNamed: customerName
 	| customerBook |
 	customerBook := CustomerBook new.
