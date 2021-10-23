@@ -490,6 +490,11 @@ multiplyAnEntero: aMultiplicand
 
 	^Entero with: aMultiplicand integerValue * self integerValue.! !
 
+
+!Entero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:36:45'!
+beDivisorWithDividend: aDividend
+	^self subclassResponsibility.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Entero class' category: 'Numeros-Parte2-Ejercicio'!
@@ -500,14 +505,15 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'TK 10/22/2021 15:47:09'!
+!Entero class methodsFor: 'instance creation' stamp: 'MW 10/23/2021 12:53:55'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
 	"Se nos complico reemplazar estos ifs por polimorfismo"
-	(aValue isZero or: aValue = 1) ifTrue: [ 		^ NeutralFibonacciEntero new initalizeWith: aValue 	].
+	(aValue isZero) ifTrue: [ 		^ ZeroFibonacciEntero new initalizeWith: aValue 	].
+	(aValue = 1) ifTrue:[^ OneFibonacciEntero new initalizeWith: aValue].
 	(aValue < 0) ifTrue: [		^ NegativeFibonacciEntero new initalizeWith: aValue ].	
 	^ PositiveFibonacciEntero new initalizeWith: aValue! !
 
@@ -519,23 +525,43 @@ Entero subclass: #NegativeFibonacciEntero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!NegativeFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'TK 10/22/2021 15:14:31'!
+!NegativeFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/22/2021 15:14:31'!
 fibonacci
 
 	self error: Entero negativeFibonacciErrorDescription! !
 
+
+!NegativeFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:38'!
+beDivisorWithDividend: aDividend
+	^aDividend negated / self negated! !
+
 
-!classDefinition: #NeutralFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #NeutralFibonacciEntero
+!classDefinition: #OneFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #OneFibonacciEntero
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!NeutralFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'TK 10/22/2021 15:45:53'!
+!OneFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'MW 10/23/2021 11:07:24'!
 fibonacci
 
 	^ Entero with: 1! !
+
+
+!OneFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:01'!
+beDivisorWithDividend: aDividend
+	| greatestCommonDivisor numerator denominator |
+	
+	aDividend isZero ifTrue:[^ aDividend].
+	
+	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
+	numerator := aDividend // greatestCommonDivisor.
+	denominator := self // greatestCommonDivisor.
+	
+	denominator isOne ifTrue: [ ^numerator ].
+
+	^Fraccion initializeWith: numerator over: denominator! !
 
 
 !classDefinition: #PositiveFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
@@ -545,13 +571,46 @@ Entero subclass: #PositiveFibonacciEntero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!PositiveFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'TK 10/22/2021 15:46:04'!
+!PositiveFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:10:32'!
+beDivisorWithDividend: aDividend
+	| greatestCommonDivisor numerator denominator |
+	
+	aDividend isZero ifTrue: [	^ aDividend.].
+	
+	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
+	numerator := aDividend // greatestCommonDivisor.
+	denominator := self // greatestCommonDivisor.
+	
+	denominator isOne ifTrue: [ ^numerator ].
+
+	^Fraccion new initializeWith: numerator over: denominator! !
+
+
+!PositiveFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/22/2021 15:46:04'!
 fibonacci
 
 	| one two |
 	one := Entero with: 1.
 	two := Entero with: 2.
 	^ (self - one) fibonacci + (self - two) fibonacci! !
+
+
+!classDefinition: #ZeroFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #ZeroFibonacciEntero
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!ZeroFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:15:43'!
+beDivisorWithDividend: aDividend
+	^self error: self class canNotDivideByZeroErrorDescription! !
+
+
+!ZeroFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'MW 10/23/2021 11:07:30'!
+fibonacci
+
+	^ Entero with: 1! !
 
 
 !classDefinition: #Fraccion category: 'Numeros-Parte2-Ejercicio'!
@@ -673,14 +732,14 @@ divideAFraccion: aDividend
 	
 	^(aDividend numerator * self denominator) / (aDividend denominator * self numerator)! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:05:37'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/23/2021 11:04:32'!
 divideAnEntero: aDividend
 
 	 | newDenominator newNumerator |
 	
 	newDenominator := self numerator.
 	newNumerator := self denominator.
-	^ (Fraccion with: newNumerator over: newDenominator) * aDividend! !
+	^ (Fraccion with: newNumerator * aDividend over: newDenominator) ! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:09:10'!
 multiplyAFraccion: aMultiplier
@@ -698,21 +757,7 @@ multiplyAnEntero: aMutiplier
 Fraccion class
 	instanceVariableNames: ''!
 
-!Fraccion class methodsFor: 'intance creation' stamp: 'NR 9/23/2018 23:45:19'!
+!Fraccion class methodsFor: 'intance creation' stamp: 'MW 10/23/2021 12:16:35'!
 with: aDividend over: aDivisor
 
-	| greatestCommonDivisor numerator denominator |
-	
-	aDivisor isZero ifTrue: [ self error: self canNotDivideByZeroErrorDescription ].
-	aDividend isZero ifTrue: [ ^aDividend ].
-	
-	aDivisor isNegative ifTrue:[ ^aDividend negated / aDivisor negated].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: aDivisor. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := aDivisor // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
-
-	^self new initializeWith: numerator over: denominator
-	! !
+	^aDivisor beDivisorWithDividend: aDividend.! !
