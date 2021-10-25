@@ -444,31 +444,32 @@ isZero
 	
 	^self class with: value // aDivisor integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 11:35:11'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 09:52:40'!
 beAddedToAFraccion: anAugend
-	^ (anAugend denominator + anAugend numerator) / anAugend denominator ! !
+	
+	^ anAugend denominator divideAnEntero: (anAugend numerator beAddedToAnEntero: anAugend denominator)! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 10:34:32'!
 beAddedToAnEntero: anAugend
 
 	^ Entero with: anAugend integerValue + self integerValue! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 12:00:35'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 09:54:30'!
 beSubstractedToAFraccion: aMinuend
 
-	^ (self * aMinuend numerator - aMinuend denominator) / aMinuend denominator ! !
+	^ aMinuend denominator divideAnEntero: (aMinuend denominator beSubstractedToAnEntero: aMinuend numerator).! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 11:56:14'!
 beSubstractedToAnEntero: aMinuend
 	^ Entero with: aMinuend integerValue - self integerValue.! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:05:25'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:04:28'!
 divideAFraccion: aDividend
 	
 	| newDenominator |
 	
-	newDenominator := aDividend denominator * self.
-	^aDividend numerator / newDenominator! !
+	newDenominator := aDividend denominator multiplyAnEntero: self.
+	^ newDenominator divideAnEntero: aDividend numerator! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:05:37'!
 divideAnEntero: aDividend
@@ -480,10 +481,10 @@ greatestCommonDivisorWith: anEntero
 	
 	^self class with: (value gcd: anEntero integerValue)! !
 
-!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:09:10'!
+!Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:01:37'!
 multiplyAFraccion: aMultiplicand
 
-	^aMultiplicand numerator * self / aMultiplicand denominator.! !
+	^ aMultiplicand denominator divideAnEntero: (aMultiplicand numerator multiplyAnEntero: self)! !
 
 !Entero methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:09:30'!
 multiplyAnEntero: aMultiplicand
@@ -491,9 +492,10 @@ multiplyAnEntero: aMultiplicand
 	^Entero with: aMultiplicand integerValue * self integerValue.! !
 
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:36:45'!
+!Entero methodsFor: 'as yet unclassified' stamp: 'TK 10/25/2021 11:17:33'!
 beDivisorWithDividend: aDividend
-	^self subclassResponsibility.! !
+
+	self subclassResponsibility.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -505,73 +507,27 @@ Entero class
 negativeFibonacciErrorDescription
 	^ ' Fibonacci no está definido aquí para Enteros Negativos'! !
 
-!Entero class methodsFor: 'instance creation' stamp: 'MW 10/23/2021 12:53:55'!
+!Entero class methodsFor: 'instance creation' stamp: 'TK 10/25/2021 11:35:56'!
 with: aValue 
 	
 	"Esta verificacion esta puesta por si se equivocan y quieren crear un Entero pasando otra cosa que un Integer - Hernan"
 	aValue isInteger ifFalse: [  self error: 'aValue debe ser anInteger' ].
 	
 	"Se nos complico reemplazar estos ifs por polimorfismo"
-	(aValue isZero) ifTrue: [ 		^ ZeroFibonacciEntero new initalizeWith: aValue 	].
-	(aValue = 1) ifTrue:[^ OneFibonacciEntero new initalizeWith: aValue].
-	(aValue < 0) ifTrue: [		^ NegativeFibonacciEntero new initalizeWith: aValue ].	
-	^ PositiveFibonacciEntero new initalizeWith: aValue! !
+	(aValue isZero) ifTrue: [		^ Zero new initalizeWith: aValue 	].
+	(aValue = 1) ifTrue: [ ^ One new initalizeWith: aValue ].
+	(aValue < 0) ifTrue: [		^ NegativeEntero new initalizeWith: aValue ].	
+	^ EnteroGreaterThanOne new initalizeWith: aValue! !
 
 
-!classDefinition: #NegativeFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #NegativeFibonacciEntero
+!classDefinition: #EnteroGreaterThanOne category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #EnteroGreaterThanOne
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!NegativeFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/22/2021 15:14:31'!
-fibonacci
-
-	self error: Entero negativeFibonacciErrorDescription! !
-
-
-!NegativeFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:38'!
-beDivisorWithDividend: aDividend
-	^aDividend negated / self negated! !
-
-
-!classDefinition: #OneFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #OneFibonacciEntero
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Numeros-Parte2-Ejercicio'!
-
-!OneFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'MW 10/23/2021 11:07:24'!
-fibonacci
-
-	^ Entero with: 1! !
-
-
-!OneFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:01'!
-beDivisorWithDividend: aDividend
-	| greatestCommonDivisor numerator denominator |
-	
-	aDividend isZero ifTrue:[^ aDividend].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := self // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
-
-	^Fraccion initializeWith: numerator over: denominator! !
-
-
-!classDefinition: #PositiveFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #PositiveFibonacciEntero
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Numeros-Parte2-Ejercicio'!
-
-!PositiveFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:10:32'!
+!EnteroGreaterThanOne methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:10:32'!
 beDivisorWithDividend: aDividend
 	| greatestCommonDivisor numerator denominator |
 	
@@ -586,31 +542,78 @@ beDivisorWithDividend: aDividend
 	^Fraccion new initializeWith: numerator over: denominator! !
 
 
-!PositiveFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/22/2021 15:46:04'!
+!EnteroGreaterThanOne methodsFor: 'arithmetic operations' stamp: 'TK 10/25/2021 11:27:30'!
 fibonacci
 
 	| one two |
 	one := Entero with: 1.
 	two := Entero with: 2.
-	^ (self - one) fibonacci + (self - two) fibonacci! !
+	^ (two beSubstractedToAnEntero: self) fibonacci beAddedToAnEntero: (one beSubstractedToAnEntero: self) fibonacci! !
 
 
-!classDefinition: #ZeroFibonacciEntero category: 'Numeros-Parte2-Ejercicio'!
-Entero subclass: #ZeroFibonacciEntero
+!classDefinition: #NegativeEntero category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #NegativeEntero
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!ZeroFibonacciEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:15:43'!
+!NegativeEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/22/2021 15:14:31'!
+fibonacci
+
+	self error: Entero negativeFibonacciErrorDescription! !
+
+
+!NegativeEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:38'!
 beDivisorWithDividend: aDividend
-	^self error: self class canNotDivideByZeroErrorDescription! !
+	^aDividend negated / self negated! !
 
+
+!classDefinition: #NeutralEntero category: 'Numeros-Parte2-Ejercicio'!
+Entero subclass: #NeutralEntero
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
 
-!ZeroFibonacciEntero methodsFor: 'arithmetic operations' stamp: 'MW 10/23/2021 11:07:30'!
+!NeutralEntero methodsFor: 'arithmetic operations' stamp: 'TK 10/25/2021 09:38:36'!
 fibonacci
 
 	^ Entero with: 1! !
+
+
+!classDefinition: #One category: 'Numeros-Parte2-Ejercicio'!
+NeutralEntero subclass: #One
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!One methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:01'!
+beDivisorWithDividend: aDividend
+	| greatestCommonDivisor numerator denominator |
+	
+	aDividend isZero ifTrue:[^ aDividend].
+	
+	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
+	numerator := aDividend // greatestCommonDivisor.
+	denominator := self // greatestCommonDivisor.
+	
+	denominator isOne ifTrue: [ ^numerator ].
+
+	^Fraccion initializeWith: numerator over: denominator! !
+
+
+!classDefinition: #Zero category: 'Numeros-Parte2-Ejercicio'!
+NeutralEntero subclass: #Zero
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Numeros-Parte2-Ejercicio'!
+
+!Zero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:15:43'!
+beDivisorWithDividend: aDividend
+	^self error: self class canNotDivideByZeroErrorDescription! !
 
 
 !classDefinition: #Fraccion category: 'Numeros-Parte2-Ejercicio'!
@@ -700,26 +703,27 @@ printOn: aStream
 		print: denominator ! !
 
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 11:36:27'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:13:06'!
 beAddedToAFraccion: anAugend
 	|newNumerator newDenominator|
-	newNumerator := (numerator * anAugend denominator) + (denominator * anAugend numerator).
-	newDenominator := denominator * anAugend denominator.
+	
+	newNumerator := (anAugend numerator multiplyAnEntero: self denominator) beAddedToAnEntero: (anAugend denominator multiplyAnEntero: self numerator).
+	newDenominator := anAugend denominator multiplyAnEntero: self denominator.
 	
 	^newNumerator / newDenominator ! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 10:44:10'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:13:18'!
 beAddedToAnEntero: anAugend
 
-	^ (anAugend * denominator + numerator) / ( denominator).! !
+	^ (anAugend * self denominator + self numerator) / (self  denominator).! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 12:02:56'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:12:32'!
 beSubstractedToAFraccion: aMinuend
 
 	| newNumerator newDenominator |
-	
-	newNumerator := (aMinuend numerator * self denominator) - (aMinuend denominator * self numerator).
-	newDenominator := aMinuend denominator * self denominator.
+
+	newNumerator := (self numerator multiplyAnEntero: aMinuend denominator) beSubstractedToAnEntero: (self denominator multiplyAnEntero: aMinuend numerator).
+	newDenominator := self denominator multiplyAnEntero: aMinuend denominator.
 	
 	^newNumerator / newDenominator ! !
 
@@ -727,10 +731,10 @@ beSubstractedToAFraccion: aMinuend
 beSubstractedToAnEntero: aMinuend
 	^ aMinuend * self denominator - self numerator / self denominator.! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:05:25'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:15:27'!
 divideAFraccion: aDividend
-	
-	^(aDividend numerator * self denominator) / (aDividend denominator * self numerator)! !
+
+	^ (self numerator multiplyAnEntero: aDividend denominator) divideAnEntero: (self denominator multiplyAnEntero: aDividend numerator)! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/23/2021 11:04:32'!
 divideAnEntero: aDividend
@@ -741,10 +745,10 @@ divideAnEntero: aDividend
 	newNumerator := self denominator.
 	^ (Fraccion with: newNumerator * aDividend over: newDenominator) ! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:09:10'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 11:10:24'!
 multiplyAFraccion: aMultiplier
 
-	^(aMultiplier numerator * self numerator) / (aMultiplier denominator * self denominator).! !
+	^ (aMultiplier denominator * self denominator) divideAnEntero: (self numerator multiplyAnEntero: aMultiplier numerator).! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/22/2021 15:09:30'!
 multiplyAnEntero: aMutiplier
