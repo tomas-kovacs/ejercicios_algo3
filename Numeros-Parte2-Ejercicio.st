@@ -492,7 +492,7 @@ multiplyAnEntero: aMultiplicand
 	^Entero with: aMultiplicand integerValue * self integerValue.! !
 
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'MW 10/25/2021 15:00:30'!
+!Entero methodsFor: 'instance creation' stamp: 'MW 10/25/2021 15:00:30'!
 beDividendWithDivisor: aDivisor
 	| greatestCommonDivisor numerator denominator|
 	
@@ -504,7 +504,7 @@ beDividendWithDivisor: aDivisor
 
 	^Fraccion new initializeWith: numerator over: denominator! !
 
-!Entero methodsFor: 'as yet unclassified' stamp: 'TK 10/25/2021 11:17:33'!
+!Entero methodsFor: 'instance creation' stamp: 'TK 10/25/2021 11:17:33'!
 beDivisorWithDividend: aDividend
 
 	self subclassResponsibility.! !
@@ -711,10 +711,10 @@ beAddedToAFraccion: anAugend
 	
 	^newNumerator / newDenominator ! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:13:18'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 15:59:59'!
 beAddedToAnEntero: anAugend
 
-	^ (anAugend * self denominator + self numerator) / (self  denominator).! !
+	^ self denominator divideAnEntero: (anAugend multiplyAnEntero: (self denominator beAddedToAnEntero: self numerator)).! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:12:32'!
 beSubstractedToAFraccion: aMinuend
@@ -726,8 +726,9 @@ beSubstractedToAFraccion: aMinuend
 	
 	^newNumerator / newDenominator ! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/22/2021 11:44:40'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 16:06:50'!
 beSubstractedToAnEntero: aMinuend
+
 	^ aMinuend * self denominator - self numerator / self denominator.! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 10:15:27'!
@@ -735,14 +736,14 @@ divideAFraccion: aDividend
 
 	^ (self numerator multiplyAnEntero: aDividend denominator) divideAnEntero: (self denominator multiplyAnEntero: aDividend numerator)! !
 
-!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'MW 10/23/2021 11:04:32'!
+!Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 16:08:21'!
 divideAnEntero: aDividend
 
 	 | newDenominator newNumerator |
 	
 	newDenominator := self numerator.
 	newNumerator := self denominator.
-	^ (Fraccion with: newNumerator * aDividend over: newDenominator) ! !
+	^ (Fraccion with: (newNumerator multiplyAnEntero: aDividend) over: newDenominator)! !
 
 !Fraccion methodsFor: 'arithmetic operations - private' stamp: 'TK 10/25/2021 11:10:24'!
 multiplyAFraccion: aMultiplier
