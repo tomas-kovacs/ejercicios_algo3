@@ -492,6 +492,18 @@ multiplyAnEntero: aMultiplicand
 	^Entero with: aMultiplicand integerValue * self integerValue.! !
 
 
+!Entero methodsFor: 'as yet unclassified' stamp: 'MW 10/25/2021 15:00:30'!
+beDividendWithDivisor: aDivisor
+	| greatestCommonDivisor numerator denominator|
+	
+	greatestCommonDivisor := self greatestCommonDivisorWith: aDivisor. 
+	numerator := self // greatestCommonDivisor.
+	denominator := aDivisor // greatestCommonDivisor.
+	
+	denominator isOne ifTrue: [ ^numerator ].
+
+	^Fraccion new initializeWith: numerator over: denominator! !
+
 !Entero methodsFor: 'as yet unclassified' stamp: 'TK 10/25/2021 11:17:33'!
 beDivisorWithDividend: aDividend
 
@@ -527,21 +539,6 @@ Entero subclass: #EnteroGreaterThanOne
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!EnteroGreaterThanOne methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:10:32'!
-beDivisorWithDividend: aDividend
-	| greatestCommonDivisor numerator denominator |
-	
-	aDividend isZero ifTrue: [	^ aDividend.].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := self // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
-
-	^Fraccion new initializeWith: numerator over: denominator! !
-
-
 !EnteroGreaterThanOne methodsFor: 'arithmetic operations' stamp: 'TK 10/25/2021 11:27:30'!
 fibonacci
 
@@ -549,6 +546,12 @@ fibonacci
 	one := Entero with: 1.
 	two := Entero with: 2.
 	^ (two beSubstractedToAnEntero: self) fibonacci beAddedToAnEntero: (one beSubstractedToAnEntero: self) fibonacci! !
+
+
+!EnteroGreaterThanOne methodsFor: 'instance creation' stamp: 'MW 10/25/2021 15:01:56'!
+beDivisorWithDividend: aDividend
+
+	^aDividend beDividendWithDivisor: self.! !
 
 
 !classDefinition: #NegativeEntero category: 'Numeros-Parte2-Ejercicio'!
@@ -564,7 +567,7 @@ fibonacci
 	self error: Entero negativeFibonacciErrorDescription! !
 
 
-!NegativeEntero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:38'!
+!NegativeEntero methodsFor: 'instance creation' stamp: 'MW 10/23/2021 11:58:38'!
 beDivisorWithDividend: aDividend
 	^aDividend negated / self negated! !
 
@@ -589,19 +592,10 @@ NeutralEntero subclass: #One
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!One methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 11:58:01'!
+!One methodsFor: 'instance creation' stamp: 'MW 10/25/2021 15:02:26'!
 beDivisorWithDividend: aDividend
-	| greatestCommonDivisor numerator denominator |
-	
-	aDividend isZero ifTrue:[^ aDividend].
-	
-	greatestCommonDivisor := aDividend greatestCommonDivisorWith: self. 
-	numerator := aDividend // greatestCommonDivisor.
-	denominator := self // greatestCommonDivisor.
-	
-	denominator isOne ifTrue: [ ^numerator ].
 
-	^Fraccion initializeWith: numerator over: denominator! !
+	^aDividend beDividendWithDivisor: self.! !
 
 
 !classDefinition: #Zero category: 'Numeros-Parte2-Ejercicio'!
@@ -611,7 +605,12 @@ NeutralEntero subclass: #Zero
 	poolDictionaries: ''
 	category: 'Numeros-Parte2-Ejercicio'!
 
-!Zero methodsFor: 'as yet unclassified' stamp: 'MW 10/23/2021 12:15:43'!
+!Zero methodsFor: 'instance creation' stamp: 'MW 10/25/2021 15:00:56'!
+beDividendWithDivisor: aDivisor
+
+	^self.! !
+
+!Zero methodsFor: 'instance creation' stamp: 'MW 10/23/2021 12:15:43'!
 beDivisorWithDividend: aDividend
 	^self error: self class canNotDivideByZeroErrorDescription! !
 
