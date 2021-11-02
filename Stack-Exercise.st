@@ -139,158 +139,110 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'ooStack sentenceFinder'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:01:59'!
-test01findWithOneElementMatchesPrefix
-	|stack finder matchedElements|
+!SentenceFinderByPrefixTest methodsFor: 'setup' stamp: 'TK 11/2/2021 15:06:33'!
+setUp
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-	stack push: 'Winter is coming'.
-	matchedElements := finder find: 'Wint' in: stack.
+	ooStack := OOStack new initialize.
+	sentenceFinder := SentenceFinderByPrefix new.! !
+
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:07:23'!
+test01findWithOneElementMatchesPrefix
+	| matchedElements |
+
+	ooStack push: 'Winter is coming'.
+	matchedElements := sentenceFinder find: 'Wint' in: ooStack.
+
 	self assert: matchedElements first equals: 'Winter is coming'.
 	self assert: matchedElements size equals: 1.	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:19:07'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:07:51'!
 test02findWithOneElementDoesNotMatchPrefix
-	|stack finder matchedElements|
+	| matchedElements |
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-	stack push: 'Is coming'.
-	matchedElements := finder find: 'Wint' in: stack.
+	ooStack push: 'Is coming'.
+	matchedElements := sentenceFinder find: 'Wint' in: ooStack.
 	self assert: matchedElements isEmpty.	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:21:03'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:08:17'!
 test03findWithOneElementKeySensitiveDoesNotMatchPrefix
-	|stack finder matchedElements|
+	| matchedElements |
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-	stack push: 'winter is coming'.
-	matchedElements := finder find: 'Wint' in: stack.
+	ooStack push: 'winter is coming'.
+	matchedElements := sentenceFinder find: 'Wint' in: ooStack.
 	self assert: matchedElements isEmpty.	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:23:00'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:08:38'!
 test04findWithOneElementWithPrefixNotAtTheStart
-	|stack finder matchedElements|
+	| matchedElements |
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-	stack push: 'Is coming Winter'.
-	matchedElements := finder find: 'Wint' in: stack.
+	ooStack push: 'Is coming Winter'.
+	matchedElements := sentenceFinder find: 'Wint' in: ooStack .
 	self assert: matchedElements isEmpty.	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 11:51:01'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:09:09'!
 test05findWithMultipleElementsMatchesPrefixInMoreThanOneElement
-	|stack finder matchedElements|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
+	| matchedElements |
 	
-	stack push: 'Winter is here'.
-	stack push: 'Winter is coming'.
-	stack push: 'Is coming Winter'.
+	ooStack push: 'Winter is here'.
+	ooStack push: 'Winter is coming'.
+	ooStack push: 'Is coming Winter'.
 	
-	matchedElements := finder find: 'Wint' in: stack.
+	matchedElements := sentenceFinder find: 'Wint' in: ooStack.
 
 	self assert: matchedElements size equals: 2.
 	self assert: matchedElements first equals: 'Winter is coming'.
 	self assert: matchedElements second equals: 'Winter is here'.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 11:51:51'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:10:35'!
 test06findWithMultipleElementsDoesNotMatchAnyElement
-	|stack finder matchedElements|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
+	| matchedElements |
 	
-	stack push: 'Winter is here'.
-	stack push: 'Winter is coming'.
-	stack push: 'Is coming Winter'.
+	ooStack push: 'Winter is here'.
+	ooStack push: 'Winter is coming'.
+	ooStack push: 'Is coming Winter'.
 	
-	matchedElements := finder find: 'wint' in: stack.
+	matchedElements := sentenceFinder find: 'wint' in: ooStack.
 
 	self assert: matchedElements isEmpty.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 11:57:57'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:11:04'!
 test07findWithMultipleElementsDoesNotChangeStack
-	|stack finder|
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
+	ooStack push: 'Winter is here'.
+	ooStack push: 'Winter is coming'.
+	ooStack push: 'Is coming Winter'.
 	
-	stack push: 'Winter is here'.
-	stack push: 'Winter is coming'.
-	stack push: 'Is coming Winter'.
+	sentenceFinder find: 'Wint' in: ooStack.
 	
-	finder find: 'Wint' in: stack.
-	
-	self assert: stack pop equals: 'Is coming Winter'.
-	self assert: stack pop equals: 'Winter is coming'.
-	self assert: stack pop equals: 'Winter is here'.
-	self assert: stack isEmpty.! !
+	self assert: ooStack pop equals: 'Is coming Winter'.
+	self assert: ooStack pop equals: 'Winter is coming'.
+	self assert: ooStack pop equals: 'Winter is here'.
+	self assert: ooStack isEmpty.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 12:01:49'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:12:05'!
 test08findWithEmptyStackReturnsEmptyCollection
-	|stack finder matchedElements|
 
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-	
-	matchedElements := finder find: 'Wint' in: stack.
+	self assert: (sentenceFinder find: 'Wint' in: ooStack) isEmpty.! !
 
-	self assert: matchedElements isEmpty.! !
-
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 12:22:58'!
-test09findPrefixWithSpaceSendsError
-	|stack finder|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-
-	self
-		should: [ finder find: '' in: stack ]
-		raise: Error 
-		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorMessage ]! !
-
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 12:20:33'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:12:27'!
 test09findWithEmptyPrefixSendsError
-	|stack finder|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
 
 	self
-		should: [ finder find: '' in: stack ]
+		should: [ sentenceFinder find: '' in: ooStack ]
 		raise: Error 
 		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorMessage ]! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 12:23:12'!
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 15:12:45'!
 test10findPrefixWithSpaceSendsError
-	|stack finder|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
 
 	self
-		should: [ finder find: ' ' in: stack ]
-		raise: Error 
-		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorMessage ]! !
-
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/2/2021 12:29:13'!
-test11findWithEmptyPrefixSendsError
-	|stack finder|
-
-	stack := OOStack new initialize.
-	finder := SentenceFinderByPrefix new.
-
-	self
-		should: [ finder find: '' in: stack ]
+		should: [ sentenceFinder find: ' ' in: ooStack ]
 		raise: Error 
 		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorMessage ]! !
 
@@ -483,10 +435,10 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'TK 11/2/2021 12:21:50'!
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'TK 11/2/2021 15:18:38'!
 find: prefix in: stack
 
-	| auxiliarStack matchedElements poppedElement prefixFoundPosition |
+	| auxiliarStack matchedElements poppedElement |
 	
 	(self isValidPrefix: prefix) ifFalse: [ ^ self invalidPrefixError ].
 	
@@ -496,9 +448,8 @@ find: prefix in: stack
 	[ stack isEmpty ] whileFalse: [
 		poppedElement := stack pop.
 		auxiliarStack push: poppedElement.
-		
-		prefixFoundPosition := poppedElement findString: prefix startingAt: 1 caseSensitive: true.
-		prefixFoundPosition = 1 ifTrue:[matchedElements add: poppedElement].
+
+		(poppedElement beginsWith: prefix) ifTrue: [ matchedElements add: poppedElement ].
 	].
 
 	[ auxiliarStack isEmpty ] whileFalse: [
@@ -513,12 +464,10 @@ invalidPrefixError
 
 	^ self error: self class invalidPrefixErrorMessage! !
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'TK 11/2/2021 12:28:44'!
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'TK 11/2/2021 14:58:28'!
 isValidPrefix: aPrefix
 
-	(aPrefix isEmpty) ifTrue: [ ^ false ]. 
-	(aPrefix includesSubString: ' ') ifTrue: [ ^ false ].
-	^ true! !
+	^ (aPrefix isEmpty not) and: (aPrefix includesSubString: ' ') not.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
