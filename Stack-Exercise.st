@@ -144,41 +144,82 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:01:59'!
+test01findWithOneElementMatchesPrefix
+	|stack finder matchedElements|
+
+	stack := OOStack new initialize.
+	finder := SentenceFinderByPrefix new.
+	stack push: 'Winter is coming'.
+	matchedElements := finder find: 'Wint' in: stack.
+	self assert: matchedElements first equals: 'Winter is coming'.
+	self assert: matchedElements size equals: 1.	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:19:07'!
+test02findWithOneElementDoesNotMatchPrefix
+	|stack finder matchedElements|
+
+	stack := OOStack new initialize.
+	finder := SentenceFinderByPrefix new.
+	stack push: 'Is coming'.
+	matchedElements := finder find: 'Wint' in: stack.
+	self assert: matchedElements isEmpty.	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:21:03'!
+test03findWithOneElementKeySensitiveDoesNotMatchPrefix
+	|stack finder matchedElements|
+
+	stack := OOStack new initialize.
+	finder := SentenceFinderByPrefix new.
+	stack push: 'winter is coming'.
+	matchedElements := finder find: 'Wint' in: stack.
+	self assert: matchedElements isEmpty.	! !
+
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 11:23:00'!
+test04findWithOneElementWithPrefixNotAtTheStart
+	|stack finder matchedElements|
+
+	stack := OOStack new initialize.
+	finder := SentenceFinderByPrefix new.
+	stack push: 'Is coming Winter'.
+	matchedElements := finder find: 'Wint' in: stack.
+	self assert: matchedElements isEmpty.	! !
+
 
 !classDefinition: #OOStack category: 'Stack-Exercise'!
 Object subclass: #OOStack
-	instanceVariableNames: 'topOOStackElement stackSize'
+	instanceVariableNames: 'stackTop stackSize'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:35:45'!
+!OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
 isEmpty
 
-	^ topOOStackElement isEmpty! !
+	^ stackTop isEmpty! !
 
-!OOStack methodsFor: 'stack management' stamp: 'TK 11/1/2021 21:14:43'!
+!OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
 pop
 	| poppedElementValue |
 	
-	poppedElementValue := topOOStackElement elementValue.
-	topOOStackElement := topOOStackElement pop.
+	poppedElementValue := stackTop elementValue.
+	stackTop := stackTop pop.
 	stackSize := stackSize - 1.
 	^ poppedElementValue.! !
 
-!OOStack methodsFor: 'stack management' stamp: 'TK 11/1/2021 21:22:42'!
+!OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
 push: anElementValue
 	| newStackElement |
 
-	newStackElement := NonBaseOOStackElement withElementValue: anElementValue andPreviousElement: topOOStackElement.
-	topOOStackElement := newStackElement.
+	newStackElement := OOStackElement withElementValue: anElementValue andPreviousElement: stackTop.
+	stackTop := newStackElement.
 	stackSize := stackSize + 1.! !
 
 
-!OOStack methodsFor: 'initialization' stamp: 'TK 11/1/2021 20:41:55'!
+!OOStack methodsFor: 'initialization' stamp: 'MW 11/2/2021 10:48:52'!
 initialize
 
-	topOOStackElement := BaseOOStackElement new.
+	stackTop := OOStackBase new.
 	stackSize := 0! !
 
 
@@ -187,10 +228,10 @@ size
 
 	^ stackSize! !
 
-!OOStack methodsFor: 'accessing' stamp: 'TK 11/1/2021 20:35:45'!
+!OOStack methodsFor: 'accessing' stamp: 'MW 11/2/2021 10:48:52'!
 top
 
-	^ topOOStackElement top.! !
+	^ stackTop top.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -204,104 +245,111 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #OOStackElement category: 'Stack-Exercise'!
-Object subclass: #OOStackElement
+!classDefinition: #OOStackComponent category: 'Stack-Exercise'!
+Object subclass: #OOStackComponent
 	instanceVariableNames: 'elementValue previous'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:21:15'!
+!OOStackComponent methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:21:15'!
 isEmpty
 
 	self subclassResponsibility ! !
 
-!OOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:36:31'!
+!OOStackComponent methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:36:31'!
 pop
 
 	self subclassResponsibility ! !
 
 
-!OOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:17:01'!
+!OOStackComponent methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:17:01'!
 elementValue
 
 	self subclassResponsibility ! !
 
-!OOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 20:33:23'!
+!OOStackComponent methodsFor: 'accessing' stamp: 'TK 11/1/2021 20:33:23'!
 top
 
 	self subclassResponsibility ! !
 
 
-!classDefinition: #BaseOOStackElement category: 'Stack-Exercise'!
-OOStackElement subclass: #BaseOOStackElement
+!classDefinition: #OOStackBase category: 'Stack-Exercise'!
+OOStackComponent subclass: #OOStackBase
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!BaseOOStackElement methodsFor: 'as yet unclassified' stamp: 'TK 11/1/2021 21:17:46'!
-elementValue
-
-	^ self! !
-
-!BaseOOStackElement methodsFor: 'as yet unclassified' stamp: 'TK 11/1/2021 20:20:15'!
+!OOStackBase methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:20:15'!
 isEmpty
 
 	^ true! !
 
-!BaseOOStackElement methodsFor: 'as yet unclassified' stamp: 'TK 11/1/2021 20:36:37'!
+!OOStackBase methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:37:54'!
 pop
 
-	^ self error: self class stackEmptyErrorDescription! !
+	^ self emptyStackDescriptionError ! !
 
-!BaseOOStackElement methodsFor: 'as yet unclassified' stamp: 'TK 11/1/2021 20:34:07'!
+
+!OOStackBase methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:17:46'!
+elementValue
+
+	^ self! !
+
+!OOStackBase methodsFor: 'accessing' stamp: 'MW 11/2/2021 10:38:20'!
 top
+
+	^ self emptyStackDescriptionError ! !
+
+
+!OOStackBase methodsFor: 'error descriptions' stamp: 'MW 11/2/2021 10:37:24'!
+emptyStackDescriptionError
 
 	^ self error: self class stackEmptyErrorDescription! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'BaseOOStackElement class' category: 'Stack-Exercise'!
-BaseOOStackElement class
+!classDefinition: 'OOStackBase class' category: 'Stack-Exercise'!
+OOStackBase class
 	instanceVariableNames: ''!
 
-!BaseOOStackElement class methodsFor: 'error descriptions' stamp: 'TK 11/1/2021 20:57:31'!
+!OOStackBase class methodsFor: 'error descriptions' stamp: 'TK 11/1/2021 20:57:31'!
 stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #NonBaseOOStackElement category: 'Stack-Exercise'!
-OOStackElement subclass: #NonBaseOOStackElement
+!classDefinition: #OOStackElement category: 'Stack-Exercise'!
+OOStackComponent subclass: #OOStackElement
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!NonBaseOOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:15:13'!
+!OOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:15:13'!
 elementValue
 
 	^ elementValue! !
 
-!NonBaseOOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:19:21'!
+!OOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:19:21'!
 top
 
 	^ self elementValue ! !
 
 
-!NonBaseOOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:20:27'!
+!OOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:20:27'!
 isEmpty
 
 	^ false! !
 
-!NonBaseOOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:37:36'!
+!OOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:37:36'!
 pop
 
 	^ previous! !
 
 
-!NonBaseOOStackElement methodsFor: 'initialization' stamp: 'TK 11/1/2021 21:14:32'!
+!OOStackElement methodsFor: 'initialization' stamp: 'TK 11/1/2021 21:14:32'!
 initializeWith: anElementValue andPreviousElement: previousElement
 
 	previous := previousElement.
@@ -309,14 +357,14 @@ initializeWith: anElementValue andPreviousElement: previousElement
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'NonBaseOOStackElement class' category: 'Stack-Exercise'!
-NonBaseOOStackElement class
+!classDefinition: 'OOStackElement class' category: 'Stack-Exercise'!
+OOStackElement class
 	instanceVariableNames: ''!
 
-!NonBaseOOStackElement class methodsFor: 'instance creation' stamp: 'TK 11/1/2021 21:22:42'!
+!OOStackElement class methodsFor: 'instance creation' stamp: 'MW 11/2/2021 10:47:20'!
 withElementValue: anElementValue andPreviousElement: aPreviousElement
 
-	^ NonBaseOOStackElement new initializeWith: anElementValue andPreviousElement: aPreviousElement! !
+	^ OOStackElement new initializeWith: anElementValue andPreviousElement: aPreviousElement! !
 
 
 !classDefinition: #SentenceFinderByPrefix category: 'Stack-Exercise'!
@@ -325,3 +373,13 @@ Object subclass: #SentenceFinderByPrefix
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'MW 11/2/2021 11:16:24'!
+find: prefix in: stack
+	|auxiliarStack matchedElements poppedElement prefixFoundPosition|
+	matchedElements := OrderedCollection new.
+	auxiliarStack := OOStack new initialize.
+	poppedElement := stack pop.
+	prefixFoundPosition := poppedElement findString: prefix startingAt: 1 caseSensitive: true.
+	prefixFoundPosition = 1 ifTrue:[matchedElements add: poppedElement].
+	^matchedElements.! !
