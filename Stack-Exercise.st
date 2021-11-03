@@ -136,12 +136,12 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 		
 ! !
 
-!OOStackTest methodsFor: 'test' stamp: 'MW 11/3/2021 16:05:01'!
+!OOStackTest methodsFor: 'test' stamp: 'TK 11/3/2021 19:27:17'!
 test11StackShouldNotPushMoreThanItsCapacity
 
 	| stack |
 	
-	stack := OOStack initializeWith: 3.
+	stack := OOStack instanceWithCapacity: 3.
 	
 	stack push: 'Hola'.
 	stack push: 'como'.
@@ -151,7 +151,7 @@ test11StackShouldNotPushMoreThanItsCapacity
 		should: [ stack push: 'hoy'. ]
 		raise: Error
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = LimitedOOStack fullStackError ].
+			self assert: anError messageText = LimitedOOStack fullStackErrorDescription ].
 	
 	self assert: stack size equals: 3.
 	self assert: stack pop equals: 'estas'.
@@ -246,12 +246,12 @@ test10findPrefixWithSpaceSendsError
 	self assertFindFailsWithInvalidPrefix: ' '! !
 
 
-!SentenceFinderByPrefixTest methodsFor: 'test - private' stamp: 'TK 11/3/2021 09:40:10'!
+!SentenceFinderByPrefixTest methodsFor: 'test - private' stamp: 'TK 11/3/2021 19:34:54'!
 assertFindFailsWithInvalidPrefix: prefix
 	self
 		should: [ sentenceFinder find: prefix in: ooStack ]
 		raise: Error 
-		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorMessage ]! !
+		withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix invalidPrefixErrorDescription ]! !
 
 !SentenceFinderByPrefixTest methodsFor: 'test - private' stamp: 'TK 11/3/2021 09:46:02'!
 assertPrefix: aPrefix doesNotMatchSentence: aSentence
@@ -329,9 +329,10 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!OOStack class methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:38:56'!
-initializeWith: capacity
-	^LimitedOOStack new initializeWith: capacity.! !
+!OOStack class methodsFor: 'instance creation' stamp: 'TK 11/3/2021 19:23:50'!
+instanceWithCapacity: capacity
+
+	^ LimitedOOStack new initializeWithCapacity: capacity.! !
 
 
 !classDefinition: #LimitedOOStack category: 'Stack-Exercise'!
@@ -341,19 +342,7 @@ OOStack subclass: #LimitedOOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 16:01:49'!
-fullStackError
-
-	^self error: self class fullStackError! !
-
-!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:45:19'!
-initializeWith: capacity
-
-	stackTop := OOStackBase new.
-	stackSize := 0.
-	stackCapacity := capacity.! !
-
-!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:30:56'!
+!LimitedOOStack methodsFor: 'stack management' stamp: 'TK 11/3/2021 19:30:38'!
 push: anElementValue
 	| newStackElement|
 
@@ -363,14 +352,29 @@ push: anElementValue
 	stackTop := newStackElement.
 	stackSize := stackSize + 1.! !
 
+
+!LimitedOOStack methodsFor: 'errors' stamp: 'TK 11/3/2021 19:30:38'!
+fullStackError
+
+	^self error: self class fullStackErrorDescription.! !
+
+
+!LimitedOOStack methodsFor: 'initialization' stamp: 'TK 11/3/2021 19:24:13'!
+initializeWithCapacity: capacity
+
+	stackTop := OOStackBase new.
+	stackSize := 0.
+	stackCapacity := capacity.! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'LimitedOOStack class' category: 'Stack-Exercise'!
 LimitedOOStack class
 	instanceVariableNames: ''!
 
-!LimitedOOStack class methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:30:41'!
-fullStackError
+!LimitedOOStack class methodsFor: 'error descriptions' stamp: 'TK 11/3/2021 19:30:20'!
+fullStackErrorDescription
+
 	^'Stack is full'! !
 
 
@@ -410,20 +414,20 @@ isStackBase
 
 	^ true! !
 
-!OOStackBase methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:37:54'!
+!OOStackBase methodsFor: 'stack management' stamp: 'TK 11/3/2021 19:31:17'!
 pop
 
-	^ self emptyStackDescriptionError ! !
+	^ self emptyStackError ! !
 
 
-!OOStackBase methodsFor: 'accessing' stamp: 'MW 11/3/2021 15:12:54'!
+!OOStackBase methodsFor: 'accessing' stamp: 'TK 11/3/2021 19:31:17'!
 elementValue
 
-	^ self emptyStackDescriptionError ! !
+	^ self emptyStackError ! !
 
 
-!OOStackBase methodsFor: 'error descriptions' stamp: 'MW 11/2/2021 10:37:24'!
-emptyStackDescriptionError
+!OOStackBase methodsFor: 'errors' stamp: 'TK 11/3/2021 19:31:17'!
+emptyStackError
 
 	^ self error: self class stackEmptyErrorDescription! !
 
@@ -488,10 +492,10 @@ Object subclass: #SentenceFinderByPrefix
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'error descriptions' stamp: 'TK 11/2/2021 12:15:06'!
+!SentenceFinderByPrefix methodsFor: 'error descriptions' stamp: 'TK 11/3/2021 19:32:31'!
 invalidPrefixError
 
-	^ self error: self class invalidPrefixErrorMessage! !
+	^ self error: self class invalidPrefixErrorDescription! !
 
 
 !SentenceFinderByPrefix methodsFor: 'sentence finder management' stamp: 'TK 11/3/2021 11:23:52'!
@@ -536,7 +540,7 @@ isValidPrefix: aPrefix
 SentenceFinderByPrefix class
 	instanceVariableNames: ''!
 
-!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'TK 11/2/2021 12:14:48'!
-invalidPrefixErrorMessage
+!SentenceFinderByPrefix class methodsFor: 'error descriptions' stamp: 'TK 11/3/2021 19:32:31'!
+invalidPrefixErrorDescription
 
 	^ 'Invalid prefix'! !
