@@ -136,6 +136,29 @@ test10CanNotTopWhenThereAreNoObjectsInTheStack
 		
 ! !
 
+!OOStackTest methodsFor: 'test' stamp: 'MW 11/3/2021 16:05:01'!
+test11StackShouldNotPushMoreThanItsCapacity
+
+	| stack |
+	
+	stack := OOStack initializeWith: 3.
+	
+	stack push: 'Hola'.
+	stack push: 'como'.
+	stack push: 'estas'.
+	
+	self
+		should: [ stack push: 'hoy'. ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = LimitedOOStack fullStackError ].
+	
+	self assert: stack size equals: 3.
+	self assert: stack pop equals: 'estas'.
+	self assert: stack pop equals: 'como'.
+	self assert: stack pop equals: 'Hola'.
+	self assert: stack isEmpty.! !
+
 
 !classDefinition: #SentenceFinderByPrefixTest category: 'Stack-Exercise'!
 TestCase subclass: #SentenceFinderByPrefixTest
@@ -253,10 +276,10 @@ Object subclass: #OOStack
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
+!OOStack methodsFor: 'stack management' stamp: 'MW 11/3/2021 15:11:28'!
 isEmpty
 
-	^ stackTop isEmpty! !
+	^ stackTop isStackBase! !
 
 !OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
 pop
@@ -267,13 +290,14 @@ pop
 	stackSize := stackSize - 1.
 	^ poppedElementValue.! !
 
-!OOStack methodsFor: 'stack management' stamp: 'MW 11/2/2021 10:48:52'!
+!OOStack methodsFor: 'stack management' stamp: 'MW 11/3/2021 15:43:15'!
 push: anElementValue
 	| newStackElement |
 
 	newStackElement := OOStackElement withElementValue: anElementValue andPreviousElement: stackTop.
 	stackTop := newStackElement.
-	stackSize := stackSize + 1.! !
+	stackSize := stackSize + 1.
+	! !
 
 
 !OOStack methodsFor: 'initialization' stamp: 'MW 11/2/2021 10:48:52'!
@@ -288,10 +312,10 @@ size
 
 	^ stackSize! !
 
-!OOStack methodsFor: 'accessing' stamp: 'MW 11/2/2021 10:48:52'!
+!OOStack methodsFor: 'accessing' stamp: 'MW 11/3/2021 15:13:28'!
 top
 
-	^ stackTop top.! !
+	^ stackTop elementValue.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -304,6 +328,51 @@ stackEmptyErrorDescription
 	
 	^ 'Stack is empty'! !
 
+
+!OOStack class methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:38:56'!
+initializeWith: capacity
+	^LimitedOOStack new initializeWith: capacity.! !
+
+
+!classDefinition: #LimitedOOStack category: 'Stack-Exercise'!
+OOStack subclass: #LimitedOOStack
+	instanceVariableNames: 'stackCapacity'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Stack-Exercise'!
+
+!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 16:01:49'!
+fullStackError
+
+	^self error: self class fullStackError! !
+
+!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:45:19'!
+initializeWith: capacity
+
+	stackTop := OOStackBase new.
+	stackSize := 0.
+	stackCapacity := capacity.! !
+
+!LimitedOOStack methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:30:56'!
+push: anElementValue
+	| newStackElement|
+
+	(stackCapacity = stackSize) ifTrue:[^self fullStackError ].
+	
+	newStackElement := OOStackElement withElementValue: anElementValue andPreviousElement: stackTop.
+	stackTop := newStackElement.
+	stackSize := stackSize + 1.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'LimitedOOStack class' category: 'Stack-Exercise'!
+LimitedOOStack class
+	instanceVariableNames: ''!
+
+!LimitedOOStack class methodsFor: 'as yet unclassified' stamp: 'MW 11/3/2021 15:30:41'!
+fullStackError
+	^'Stack is full'! !
+
 
 !classDefinition: #OOStackComponent category: 'Stack-Exercise'!
 Object subclass: #OOStackComponent
@@ -312,8 +381,8 @@ Object subclass: #OOStackComponent
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStackComponent methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:21:15'!
-isEmpty
+!OOStackComponent methodsFor: 'stack management' stamp: 'MW 11/3/2021 15:10:40'!
+isStackBase
 
 	self subclassResponsibility ! !
 
@@ -328,11 +397,6 @@ elementValue
 
 	self subclassResponsibility ! !
 
-!OOStackComponent methodsFor: 'accessing' stamp: 'TK 11/1/2021 20:33:23'!
-top
-
-	self subclassResponsibility ! !
-
 
 !classDefinition: #OOStackBase category: 'Stack-Exercise'!
 OOStackComponent subclass: #OOStackBase
@@ -341,8 +405,8 @@ OOStackComponent subclass: #OOStackBase
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStackBase methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:20:15'!
-isEmpty
+!OOStackBase methodsFor: 'stack management' stamp: 'MW 11/3/2021 15:10:40'!
+isStackBase
 
 	^ true! !
 
@@ -352,13 +416,8 @@ pop
 	^ self emptyStackDescriptionError ! !
 
 
-!OOStackBase methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:17:46'!
+!OOStackBase methodsFor: 'accessing' stamp: 'MW 11/3/2021 15:12:54'!
 elementValue
-
-	^ self! !
-
-!OOStackBase methodsFor: 'accessing' stamp: 'MW 11/2/2021 10:38:20'!
-top
 
 	^ self emptyStackDescriptionError ! !
 
@@ -392,14 +451,9 @@ elementValue
 
 	^ elementValue! !
 
-!OOStackElement methodsFor: 'accessing' stamp: 'TK 11/1/2021 21:19:21'!
-top
 
-	^ self elementValue ! !
-
-
-!OOStackElement methodsFor: 'stack management' stamp: 'TK 11/1/2021 20:20:27'!
-isEmpty
+!OOStackElement methodsFor: 'stack management' stamp: 'MW 11/3/2021 15:10:40'!
+isStackBase
 
 	^ false! !
 
