@@ -174,8 +174,8 @@ setUp
 	sentenceFinder := SentenceFinderByPrefix new.! !
 
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 17:32:22'!
-test01findWithOneElementMatchesPrefix
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:10:36'!
+test01findWithOneElementStackedMatchesPrefix
 
 	| matchedElements |
 
@@ -185,23 +185,23 @@ test01findWithOneElementMatchesPrefix
 	self assert: matchedElements first equals: 'Winter is coming'.
 	self assert: matchedElements size equals: 1.	! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/3/2021 09:46:43'!
-test02findWithOneElementDoesNotMatchPrefix
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:10:50'!
+test02findWithOneElementStackedDoesNotMatchPrefix
 
 	self assertPrefix: 'Wint' doesNotMatchSentence: 'Is coming'.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/3/2021 09:47:12'!
-test03findWithOneElementKeySensitiveDoesNotMatchPrefix
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:11:14'!
+test03findWithOneElementKeySensitiveStackedDoesNotMatchPrefix
 
 	self assertPrefix: 'Wint' doesNotMatchSentence: 'winter is coming'.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'TK 11/3/2021 09:47:43'!
-test04findWithOneElementWithPrefixNotAtTheStart
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:11:45'!
+test04findWithOneElementStackedWithPrefixNotAtTheStart
 
 	self assertPrefix: 'Wint' doesNotMatchSentence: 'is coming Winter'.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 17:32:03'!
-test05findWithMultipleElementsMatchesPrefixInMoreThanOneElement
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:12:00'!
+test05findWithMultipleElementsStackedMatchesPrefixInMoreThanOneElement
 	
 	| matchedElements |
 	
@@ -211,8 +211,8 @@ test05findWithMultipleElementsMatchesPrefixInMoreThanOneElement
 	self assert: matchedElements first equals: 'Winter is coming'.
 	self assert: matchedElements second equals: 'Winter is here'.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 17:32:11'!
-test06findWithMultipleElementsDoesNotMatchAnyElement
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:12:07'!
+test06findWithMultipleElementsStackedDoesNotMatchAnyElement
 
 	| matchedElements |
 	
@@ -220,8 +220,8 @@ test06findWithMultipleElementsDoesNotMatchAnyElement
 
 	self assert: matchedElements isEmpty.! !
 
-!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/2/2021 17:14:00'!
-test07findWithMultipleElementsDoesNotChangeStack
+!SentenceFinderByPrefixTest methodsFor: 'test' stamp: 'MW 11/3/2021 21:12:13'!
+test07findWithMultipleElementsStackedDoesNotChangeStack
 	
 	self pushThreeElements: #('Winter is here' 'Winter is coming' 'Is coming Winter') andFind: 'Wint'.
 	
