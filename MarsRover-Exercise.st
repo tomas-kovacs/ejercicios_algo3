@@ -155,6 +155,72 @@ test19WhenAMarsRoverMovesBackwardsMultipleTimesFacingSouthItsYPositionGetsIncrem
 	aMarsRover executeCommandsSequence: 'bbb'.
 	self assert: aMarsRover currentPosition equals: (0 @ 3).! !
 
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:57:19'!
+test20WhenAMarsRoverFacingNorthMovesMultipleTimesTurnsEastAndMovesAgainMultipleTimesItsXYPositionGetsUpdatedAndFacesEast
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'fffefff'.
+	self assert: aMarsRover currentPosition equals: (3 @ 3).
+	self assert: aMarsRover currentCardinalPoint equals: 'E'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:59:09'!
+test21WhenAMarsRoverFacingNorthMovesMultipleTimesTurnsWestAndMovesAgainMultipleTimesItsXYPositionGetsUpdatedAndFacesWest
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'fffwfff'.
+	self assert: aMarsRover currentPosition equals: (-3 @ 3).
+	self assert: aMarsRover currentCardinalPoint equals: 'W'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:05'!
+test22WhenAMarsRoverTurnsEastTwiceItFacesTheCorrespondingCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'ee'.
+	self assert: aMarsRover currentCardinalPoint equals: 'S'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:44'!
+test23WhenAMarsRoverTurnsEastFourTimesItFacesTheInitialCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'eeee'.
+	self assert: aMarsRover currentCardinalPoint equals: 'N'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:56'!
+test24WhenAMarsRoverTurnsEastTheeTimesItFacesTheCorrespondingCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'eee'.
+	self assert: aMarsRover currentCardinalPoint equals: 'W'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:23:55'!
+test25WhenAMarsRoverTurnsWestTwiceItFacesTheCorrespondingCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'ww'.
+	self assert: aMarsRover currentCardinalPoint equals: 'S'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:23:47'!
+test26WhenAMarsRoverTurnsWestThreeTimesItFacesTheCorrespondingCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'www'.
+	self assert: aMarsRover currentCardinalPoint equals: 'E'.! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:26:38'!
+test27WhenAMarsRoverTurnsWestFourTimesItFacesTheInitialCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
+	aMarsRover executeCommandsSequence: 'wwww'.
+	self assert: aMarsRover currentCardinalPoint equals: 'N'.! !
+
 
 !classDefinition: #CardinalPointOrientation category: 'MarsRover-Exercise'!
 Object subclass: #CardinalPointOrientation
@@ -168,6 +234,16 @@ value
 
 	self subclassResponsibility! !
 
+
+!CardinalPointOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:20'!
+determineMarsRoverCardinalPointTurningEast
+
+	self subclassResponsibility! !
+
+!CardinalPointOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:48'!
+determineMarsRoverCardinalPointTurningWest
+
+	self subclassResponsibility! !
 
 !CardinalPointOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 11:03:28'!
 determineMarsRoverPositionMovingBackwards: aMarsRover
@@ -186,6 +262,16 @@ CardinalPointOrientation subclass: #EastOrientation
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
+
+!EastOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:20'!
+determineMarsRoverCardinalPointTurningEast
+
+	^ SouthOrientation new! !
+
+!EastOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:26:24'!
+determineMarsRoverCardinalPointTurningWest
+
+	^ NorthOrientation new! !
 
 !EastOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 11:03:48'!
 determineMarsRoverPositionMovingBackwards: aMarsRover
@@ -211,6 +297,16 @@ CardinalPointOrientation subclass: #NorthOrientation
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
+!NorthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:20'!
+determineMarsRoverCardinalPointTurningEast
+
+	^ EastOrientation new! !
+
+!NorthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:48'!
+determineMarsRoverCardinalPointTurningWest
+
+	^ WestOrientation new! !
+
 !NorthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 11:04:05'!
 determineMarsRoverPositionMovingBackwards: aMarsRover
 
@@ -235,6 +331,16 @@ CardinalPointOrientation subclass: #SouthOrientation
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
+!SouthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:20'!
+determineMarsRoverCardinalPointTurningEast
+
+	^ WestOrientation new! !
+
+!SouthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:24:40'!
+determineMarsRoverCardinalPointTurningWest
+	
+	^ EastOrientation new! !
+
 !SouthOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 11:04:17'!
 determineMarsRoverPositionMovingBackwards: aMarsRover
 
@@ -258,6 +364,16 @@ CardinalPointOrientation subclass: #WestOrientation
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
+
+!WestOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:20'!
+determineMarsRoverCardinalPointTurningEast
+
+	^ NorthOrientation new! !
+
+!WestOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 12:20:48'!
+determineMarsRoverCardinalPointTurningWest
+
+	^ SouthOrientation new! !
 
 !WestOrientation methodsFor: 'movement' stamp: 'TK 11/15/2021 11:04:28'!
 determineMarsRoverPositionMovingBackwards: aMarsRover
@@ -294,11 +410,14 @@ currentPosition
 	^ position! !
 
 
-!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:35:10'!
+!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 12:20:58'!
 executeCommand: aCommand
 
 	(aCommand = $f) ifTrue: [ 		self moveForward ].
-	(aCommand = $b) ifTrue: [ 		self moveBackwards ].! !
+	(aCommand = $b) ifTrue: [ 		self moveBackwards ].
+	(aCommand = $e) ifTrue: [ 		cardinalPoint := cardinalPoint determineMarsRoverCardinalPointTurningEast ].
+	(aCommand = $w) ifTrue: [ 		cardinalPoint := cardinalPoint determineMarsRoverCardinalPointTurningWest ].
+	"TODO: remove these ifs"! !
 
 !MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:30:17'!
 executeCommandsSequence: aCommandsSequence
