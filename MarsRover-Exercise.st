@@ -5,6 +5,32 @@ TestCase subclass: #MarsRoverTest
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
+!MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/16/2021 15:56:14'!
+marsRoverAtInitialPositionFacing: initialCardinalPoint executeCommands: aCommandsSequence andAssertFinalCardinalPoint: finalCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: initialCardinalPoint.
+	aMarsRover executeCommandsSequence: aCommandsSequence.
+	self assert: aMarsRover currentCardinalPoint equals: finalCardinalPoint.! !
+
+!MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/16/2021 15:25:08'!
+marsRoverAtInitialPositionFacing: aCardinalPoint executeCommands: aCommandsSequence andAssertFinalPosition: finalPosition
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: aCardinalPoint.
+	aMarsRover executeCommandsSequence: aCommandsSequence.
+	self assert: aMarsRover currentPosition equals: finalPosition.! !
+
+!MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/16/2021 16:03:22'!
+marsRoverAtInitialPositionFacing: initialCardinalPoint executeCommands: aCommandsSequence andAssertFinalPosition: finalPosition andFinalCardinalPoint: finalCardinalPoint
+
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: initialCardinalPoint.
+	aMarsRover executeCommandsSequence: aCommandsSequence.
+	self assert: aMarsRover currentPosition equals: finalPosition.
+	self assert: aMarsRover currentCardinalPoint equals: finalCardinalPoint.! !
+
+
 !MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 08:54:31'!
 test01AMarsRoverStartsAtTheInitialPosition
 
@@ -19,207 +45,130 @@ test02AMarsRoverStartsAtTheInitialCardinalPoint
 	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
 	self assert: aMarsRover currentCardinalPoint equals: 'N'.! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:26:07'!
 test03WhenAMarsRoverMovesForwardFacingNorthItsYPositionGetsIncremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'f'.
-	self assert: aMarsRover currentPosition equals: (0 @ 1).! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'f' andAssertFinalPosition: (0 @ 1)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:42:44'!
 test04WhenAMarsRoverMovesBackwardsFacingNorthItsYPositionGetsDecremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'b'.
-	self assert: aMarsRover currentPosition equals: (0 @ -1).! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'b' andAssertFinalPosition: (0 @ -1)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:43:19'!
 test05WhenAMarsRoverMovesForwardFacingSouthItsYPositionGetsDecremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'S'.
-	aMarsRover executeCommandsSequence: 'f'.
-	self assert: aMarsRover currentPosition equals: (0 @ -1).! !
+	self marsRoverAtInitialPositionFacing: 'S' executeCommands: 'f' andAssertFinalPosition: (0 @ -1)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:44:15'!
 test06WhenAMarsRoverMovesBackwardsFacingSouthItsYPositionGetsIncremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'S'.
-	aMarsRover executeCommandsSequence: 'b'.
-	self assert: aMarsRover currentPosition equals: (0 @ 1).! !
+	self marsRoverAtInitialPositionFacing: 'S' executeCommands: 'b' andAssertFinalPosition: (0 @ 1)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:44:51'!
 test07WhenAMarsRoverMovesForwardFacingEastItsXPositionGetsIncremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'E'.
-	aMarsRover executeCommandsSequence: 'f'.
-	self assert: aMarsRover currentPosition equals: (1 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'E' executeCommands: 'f' andAssertFinalPosition: (1 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:45:26'!
 test08WhenAMarsRoverMovesBackwardsFacingEastItsXPositionGetsDecremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'E'.
-	aMarsRover executeCommandsSequence: 'b'.
-	self assert: aMarsRover currentPosition equals: (-1 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'E' executeCommands: 'b' andAssertFinalPosition: (-1 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:45:55'!
 test09WhenAMarsRoverMovesForwardFacingWestItsXPositionGetsDecremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'W'.
-	aMarsRover executeCommandsSequence: 'f'.
-	self assert: aMarsRover currentPosition equals: (-1 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'W' executeCommands: 'f' andAssertFinalPosition: (-1 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:20:46'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:47:01'!
 test10WhenAMarsRoverMovesBackwardsFacingWestItsXPositionGetsIncremented
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'W'.
-	aMarsRover executeCommandsSequence: 'b'.
-	self assert: aMarsRover currentPosition equals: (1 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'W' executeCommands: 'b' andAssertFinalPosition: (1 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:36:22'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:47:30'!
 test11WhenAMarsRoverMovesForwardMultipleTimesFacingNorthItsYPositionGetsIncrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'fff'.
-	self assert: aMarsRover currentPosition equals: (0 @ 3).! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'fff' andAssertFinalPosition: (0 @ 3)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:37:06'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:48:07'!
 test12WhenAMarsRoverMovesForwardMultipleTimesFacingSouthItsYPositionGetsDecrementedByTheNumberOfTimes
+	
+	self marsRoverAtInitialPositionFacing: 'S' executeCommands: 'fff' andAssertFinalPosition: (0 @ -3)! !
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'S'.
-	aMarsRover executeCommandsSequence: 'fff'.
-	self assert: aMarsRover currentPosition equals: (0 @ -3).! !
-
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:39:23'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:48:45'!
 test13WhenAMarsRoverMovesForwardMultipleTimesFacingWestItsXPositionGetsDecrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'W'.
-	aMarsRover executeCommandsSequence: 'fff'.
-	self assert: aMarsRover currentPosition equals: (-3 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'W' executeCommands: 'fff' andAssertFinalPosition: (-3 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:41:33'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:49:15'!
 test14WhenAMarsRoverMovesForwardMultipleTimesFacingEastItsXPositionGetsIncrementedByTheNumberOfTimes
+	
+	self marsRoverAtInitialPositionFacing: 'E' executeCommands: 'fff' andAssertFinalPosition: (3 @ 0)! !
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'E'.
-	aMarsRover executeCommandsSequence: 'fff'.
-	self assert: aMarsRover currentPosition equals: (3 @ 0).! !
-
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:43:06'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:49:45'!
 test15WhenAMarsRoverMovesForwardMultipleTimesFacingWestItsXPositionGetsDecrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'W'.
-	aMarsRover executeCommandsSequence: 'fff'.
-	self assert: aMarsRover currentPosition equals: (-3 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'W' executeCommands: 'fff' andAssertFinalPosition: (-3 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:43:44'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:51:39'!
 test16WhenAMarsRoverMovesBackwardsMultipleTimesFacingWestItsXPositionGetsIncrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'W'.
-	aMarsRover executeCommandsSequence: 'bbb'.
-	self assert: aMarsRover currentPosition equals: (3 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'W' executeCommands: 'bbb' andAssertFinalPosition: (3 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:45:35'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:52:19'!
 test17WhenAMarsRoverMovesBackwardsMultipleTimesFacingEastItsXPositionGetsDecrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'E'.
-	aMarsRover executeCommandsSequence: 'bbb'.
-	self assert: aMarsRover currentPosition equals: (-3 @ 0).! !
+	self marsRoverAtInitialPositionFacing: 'E' executeCommands: 'bbb' andAssertFinalPosition: (-3 @ 0)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:47:51'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:52:53'!
 test18WhenAMarsRoverMovesBackwardsMultipleTimesFacingNorthItsYPositionGetsDecrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'bbb'.
-	self assert: aMarsRover currentPosition equals: (0 @ -3).! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'bbb' andAssertFinalPosition: (0 @ -3)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:48:19'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:53:17'!
 test19WhenAMarsRoverMovesBackwardsMultipleTimesFacingSouthItsYPositionGetsIncrementedByTheNumberOfTimes
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'S'.
-	aMarsRover executeCommandsSequence: 'bbb'.
-	self assert: aMarsRover currentPosition equals: (0 @ 3).! !
+	self marsRoverAtInitialPositionFacing: 'S' executeCommands: 'bbb' andAssertFinalPosition: (0 @ 3)! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:57:19'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:04:26'!
 test20WhenAMarsRoverFacingNorthMovesMultipleTimesTurnsEastAndMovesAgainMultipleTimesItsXYPositionGetsUpdatedAndFacesEast
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'fffefff'.
-	self assert: aMarsRover currentPosition equals: (3 @ 3).
-	self assert: aMarsRover currentCardinalPoint equals: 'E'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'fffefff' andAssertFinalPosition: (3 @ 3) andFinalCardinalPoint: 'E'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 11:59:09'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:05:20'!
 test21WhenAMarsRoverFacingNorthMovesMultipleTimesTurnsWestAndMovesAgainMultipleTimesItsXYPositionGetsUpdatedAndFacesWest
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'fffwfff'.
-	self assert: aMarsRover currentPosition equals: (-3 @ 3).
-	self assert: aMarsRover currentCardinalPoint equals: 'W'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'fffwfff' andAssertFinalPosition: (-3 @ 3) andFinalCardinalPoint: 'W'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:05'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 15:57:16'!
 test22WhenAMarsRoverTurnsEastTwiceItFacesTheCorrespondingCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'ee'.
-	self assert: aMarsRover currentCardinalPoint equals: 'S'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'ee' andAssertFinalCardinalPoint: 'S'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:44'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:00:18'!
 test23WhenAMarsRoverTurnsEastFourTimesItFacesTheInitialCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'eeee'.
-	self assert: aMarsRover currentCardinalPoint equals: 'N'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'eeee' andAssertFinalCardinalPoint: 'N'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:16:56'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:00:36'!
 test24WhenAMarsRoverTurnsEastTheeTimesItFacesTheCorrespondingCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'eee'.
-	self assert: aMarsRover currentCardinalPoint equals: 'W'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'eee' andAssertFinalCardinalPoint: 'W'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:23:55'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:01:11'!
 test25WhenAMarsRoverTurnsWestTwiceItFacesTheCorrespondingCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'ww'.
-	self assert: aMarsRover currentCardinalPoint equals: 'S'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'ww' andAssertFinalCardinalPoint: 'S'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:23:47'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:01:51'!
 test26WhenAMarsRoverTurnsWestThreeTimesItFacesTheCorrespondingCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'www'.
-	self assert: aMarsRover currentCardinalPoint equals: 'E'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'www' andAssertFinalCardinalPoint: 'E'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/15/2021 12:26:38'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:02:16'!
 test27WhenAMarsRoverTurnsWestFourTimesItFacesTheInitialCardinalPoint
 
-	|aMarsRover|
-	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'.
-	aMarsRover executeCommandsSequence: 'wwww'.
-	self assert: aMarsRover currentCardinalPoint equals: 'N'.! !
+	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'wwww' andAssertFinalCardinalPoint: 'N'! !
 
 
 !classDefinition: #CardinalPointOrientation category: 'MarsRover-Exercise'!
@@ -394,15 +343,15 @@ value
 
 !classDefinition: #MarsRover category: 'MarsRover-Exercise'!
 Object subclass: #MarsRover
-	instanceVariableNames: 'position cardinalPoint'
+	instanceVariableNames: 'position orientation'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!MarsRover methodsFor: 'accessing' stamp: 'TK 11/15/2021 11:11:26'!
+!MarsRover methodsFor: 'accessing' stamp: 'TK 11/16/2021 16:29:24'!
 currentCardinalPoint
 	
-	^ cardinalPoint value! !
+	^ orientation value! !
 
 !MarsRover methodsFor: 'accessing' stamp: 'TK 11/15/2021 09:41:08'!
 currentPosition
@@ -410,13 +359,13 @@ currentPosition
 	^ position! !
 
 
-!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 12:20:58'!
+!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/16/2021 16:29:24'!
 executeCommand: aCommand
 
 	(aCommand = $f) ifTrue: [ 		self moveForward ].
 	(aCommand = $b) ifTrue: [ 		self moveBackwards ].
-	(aCommand = $e) ifTrue: [ 		cardinalPoint := cardinalPoint determineMarsRoverCardinalPointTurningEast ].
-	(aCommand = $w) ifTrue: [ 		cardinalPoint := cardinalPoint determineMarsRoverCardinalPointTurningWest ].
+	(aCommand = $e) ifTrue: [ 		orientation := orientation determineMarsRoverCardinalPointTurningEast ].
+	(aCommand = $w) ifTrue: [ 		orientation := orientation determineMarsRoverCardinalPointTurningWest ].
 	"TODO: remove these ifs"! !
 
 !MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:30:17'!
@@ -425,21 +374,21 @@ executeCommandsSequence: aCommandsSequence
 	aCommandsSequence do: [ :command | self executeCommand: command ]! !
 
 
-!MarsRover methodsFor: 'initialization' stamp: 'TK 11/15/2021 11:01:50'!
+!MarsRover methodsFor: 'initialization' stamp: 'TK 11/16/2021 16:29:24'!
 initializeAtPosition: aPosition facing: aCardinalPoint
 
 	position := aPosition.
-	(aCardinalPoint = 'N') ifTrue: [ cardinalPoint := NorthOrientation new ].
-	(aCardinalPoint = 'S') ifTrue: [ cardinalPoint := SouthOrientation new ].
-	(aCardinalPoint = 'E') ifTrue: [ cardinalPoint := EastOrientation new ].
-	(aCardinalPoint = 'W') ifTrue: [ cardinalPoint := WestOrientation new ].
+	(aCardinalPoint = 'N') ifTrue: [ orientation := NorthOrientation new ].
+	(aCardinalPoint = 'S') ifTrue: [ orientation := SouthOrientation new ].
+	(aCardinalPoint = 'E') ifTrue: [ orientation := EastOrientation new ].
+	(aCardinalPoint = 'W') ifTrue: [ orientation := WestOrientation new ].
 	"TODO: remove these ifs"! !
 
 
-!MarsRover methodsFor: 'movement' stamp: 'TK 11/15/2021 11:12:27'!
+!MarsRover methodsFor: 'movement' stamp: 'TK 11/16/2021 16:29:24'!
 moveBackwards
 
-	cardinalPoint determineMarsRoverPositionMovingBackwards: self! !
+	orientation determineMarsRoverPositionMovingBackwards: self! !
 
 !MarsRover methodsFor: 'movement' stamp: 'TK 11/15/2021 11:46:03'!
 moveBackwardsFacingEast
@@ -461,10 +410,10 @@ moveBackwardsFacingWest
 .
 	position := position + (1 @ 0)! !
 
-!MarsRover methodsFor: 'movement' stamp: 'TK 11/15/2021 11:12:20'!
+!MarsRover methodsFor: 'movement' stamp: 'TK 11/16/2021 16:29:24'!
 moveForward
 
-	cardinalPoint determineMarsRoverPositionMovingForward: self! !
+	orientation determineMarsRoverPositionMovingForward: self! !
 
 !MarsRover methodsFor: 'movement' stamp: 'TK 11/15/2021 11:40:52'!
 moveForwardFacingEast
