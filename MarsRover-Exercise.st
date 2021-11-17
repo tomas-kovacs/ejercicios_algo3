@@ -150,8 +150,8 @@ test23WhenAMarsRoverTurnsEastFourTimesItFacesTheInitialCardinalPoint
 
 	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'eeee' andAssertFinalCardinalPoint: 'N'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/16/2021 16:00:36'!
-test24WhenAMarsRoverTurnsEastTheeTimesItFacesTheCorrespondingCardinalPoint
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 14:53:25'!
+test24WhenAMarsRoverTurnsEastThreeTimesItFacesTheCorrespondingCardinalPoint
 
 	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'eee' andAssertFinalCardinalPoint: 'W'! !
 
@@ -169,6 +169,50 @@ test26WhenAMarsRoverTurnsWestThreeTimesItFacesTheCorrespondingCardinalPoint
 test27WhenAMarsRoverTurnsWestFourTimesItFacesTheInitialCardinalPoint
 
 	self marsRoverAtInitialPositionFacing: 'N' executeCommands: 'wwww' andAssertFinalCardinalPoint: 'N'! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 16:30:44'!
+test28WhenAMarsRoverReceivesAnInvalidCommandRaisesAnErrorAndEndsUpAtTheCorrespondingPositionAndCardinalPoint
+	|aMarsRover|
+	aMarsRover := MarsRover atPosition: (0@0) facing: 'N'. 
+	
+	self
+		should: [ aMarsRover executeCommandsSequence: 'fefaff'. ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	.
+	self assert: aMarsRover currentPosition equals: (1@1).
+	self assert: aMarsRover currentCardinalPoint equals: 'E'.
+	! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 16:31:08'!
+test29AMarsRoverCannotBeInstancedWithAndInvalidPosition
+
+	self
+		should: [MarsRover atPosition: 'position' facing: 'N'. ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	.
+! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 16:31:53'!
+test30AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointType
+
+	self
+		should: [MarsRover atPosition: (0@0) facing: (0@0). ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
+! !
+
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 16:32:41'!
+test31AMarsRoverCannotBeInstancedWithAndInvalidCardinalPoint
+
+	self
+		should: [MarsRover atPosition: (0@0) facing: 'a'. ]
+		raise: Error
+		withExceptionDo: [ :anError |
+			self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
+! !
 
 
 !classDefinition: #CardinalPointOrientation category: 'MarsRover-Exercise'!
@@ -359,13 +403,14 @@ currentPosition
 	^ position! !
 
 
-!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/16/2021 16:29:24'!
+!MarsRover methodsFor: 'mars rover management' stamp: 'MW 11/17/2021 15:53:29'!
 executeCommand: aCommand
 
-	(aCommand = $f) ifTrue: [ 		self moveForward ].
-	(aCommand = $b) ifTrue: [ 		self moveBackwards ].
-	(aCommand = $e) ifTrue: [ 		orientation := orientation determineMarsRoverCardinalPointTurningEast ].
-	(aCommand = $w) ifTrue: [ 		orientation := orientation determineMarsRoverCardinalPointTurningWest ].
+	(aCommand = $f) ifTrue: [^self moveForward ].
+	(aCommand = $b) ifTrue: [^self moveBackwards ].
+	(aCommand = $e) ifTrue: [^	orientation := orientation determineMarsRoverCardinalPointTurningEast ].
+	(aCommand = $w) ifTrue: [^	orientation := orientation determineMarsRoverCardinalPointTurningWest ].
+	self error: self class invalidCommandErrorDescription.
 	"TODO: remove these ifs"! !
 
 !MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:30:17'!
@@ -441,7 +486,23 @@ moveForwardFacingWest
 MarsRover class
 	instanceVariableNames: ''!
 
-!MarsRover class methodsFor: 'instance creation' stamp: 'TK 11/15/2021 08:49:34'!
+!MarsRover class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 16:27:23'!
 atPosition: aPosition facing: aCardinalPoint
-
+	
+	(aPosition isKindOf: Point) ifFalse: [self error: self invalidPositionErrorDescription].
+	(aCardinalPoint isKindOf: String) ifFalse: [self error: self invalidCardinalPointErrorDescription ].
+	(#('N' 'S' 'E' 'W') includes: aCardinalPoint ) ifFalse:[self error: self invalidCardinalPointErrorDescription].
 	^ MarsRover new initializeAtPosition: aPosition facing: aCardinalPoint! !
+
+
+!MarsRover class methodsFor: 'as yet unclassified' stamp: 'MW 11/17/2021 16:19:31'!
+invalidCardinalPointErrorDescription
+	^'invalid cardinal point'! !
+
+!MarsRover class methodsFor: 'as yet unclassified' stamp: 'MW 11/17/2021 15:50:02'!
+invalidCommandErrorDescription
+	^'invalid command'! !
+
+!MarsRover class methodsFor: 'as yet unclassified' stamp: 'MW 11/17/2021 16:08:48'!
+invalidPositionErrorDescription
+	^'invalid position'! !
