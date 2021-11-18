@@ -5,6 +5,15 @@ TestCase subclass: #MarsRoverTest
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
+!MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/18/2021 12:07:33'!
+assertInvalidCardinalPointErrorWith: anInvalidCardinalPoint
+
+	| anOperation anErrorAssertion |
+
+	anOperation := [ MarsRover atPosition: (0 @ 0) facing: anInvalidCardinalPoint ].
+	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
+	self executeOperation: anOperation expecting: anErrorAssertion! !
+
 !MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/18/2021 09:43:36'!
 executeOperation: anOperation expecting: anErrorAssertion
 	
@@ -215,36 +224,16 @@ test28AMarsRoverCannotBeInstancedWithAndInvalidPosition
 			self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	."
 ! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:46:17'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 12:08:27'!
 test29AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointType
 
-	| anOperation anErrorAssertion |
-
-	anOperation := [ MarsRover atPosition: (0 @ 0) facing: (0 @ 0) ].
-	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
-	self executeOperation: anOperation expecting: anErrorAssertion.
-
-	"self
-		should: [MarsRover atPosition: (0@0) facing: (0@0). ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	."
+	self assertInvalidCardinalPointErrorWith: (0 @ 0)
 ! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:46:49'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 12:08:36'!
 test30AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointValue
 
-	| anOperation anErrorAssertion |
-
-	anOperation := [ MarsRover atPosition: (0 @ 0) facing: 'a' ].
-	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
-	self executeOperation: anOperation expecting: anErrorAssertion.
-
-	"self
-		should: [MarsRover atPosition: (0@0) facing: 'a'. ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	."
+	self assertInvalidCardinalPointErrorWith: 'a'
 ! !
 
 
@@ -491,14 +480,11 @@ currentPosition
 	^ position! !
 
 
-!MarsRover methodsFor: 'mars rover management' stamp: 'MW 11/18/2021 11:03:45'!
+!MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/18/2021 11:21:11'!
 executeCommand: aCommand
 
-	| theSelectedSubclass aCommandToExecute |
-	
-	theSelectedSubclass := self selectTheCommandSubclassThatCanInstantiateWith: aCommand.
-	aCommandToExecute := theSelectedSubclass new.
-	
+	| aCommandToExecute |
+	aCommandToExecute := (self selectTheCommandSubclassThatCanInstantiateWith: aCommand) new.
 	aCommandToExecute beExecutedBy: self.! !
 
 !MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:30:17'!
@@ -579,17 +565,16 @@ turnRight
 	orientation := orientation determineMarsRoverCardinalPointTurningRight! !
 
 
-!MarsRover methodsFor: 'private' stamp: 'MW 11/17/2021 18:26:44'!
-selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint
-
-	^ CardinalPointOrientation subclasses detect: [ :subclass | (subclass canInstantiateWith: aCardinalPoint) ]! !
-
-
-!MarsRover methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 10:15:38'!
+!MarsRover methodsFor: 'private' stamp: 'MW 11/18/2021 10:15:38'!
 selectTheCommandSubclassThatCanInstantiateWith: aCommand
 
 	^ MarsRoverCommand subclasses detect: [ :subclass | (subclass canInstantiateWith: aCommand) ]
 ! !
+
+!MarsRover methodsFor: 'private' stamp: 'MW 11/17/2021 18:26:44'!
+selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint
+
+	^ CardinalPointOrientation subclasses detect: [ :subclass | (subclass canInstantiateWith: aCardinalPoint) ]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -597,11 +582,11 @@ selectTheCommandSubclassThatCanInstantiateWith: aCommand
 MarsRover class
 	instanceVariableNames: ''!
 
-!MarsRover class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:50:04'!
+!MarsRover class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:17:46'!
 atPosition: aPosition facing: aCardinalPoint
 	
-	(aPosition isKindOf: Point) ifFalse: [self error: self invalidPositionErrorDescription].
-	(#('N' 'S' 'E' 'W') includes: aCardinalPoint ) ifFalse:[self error: self invalidCardinalPointErrorDescription].
+	(aPosition isKindOf: Point) ifFalse: [ self error: self invalidPositionErrorDescription ].
+	(#('N' 'S' 'E' 'W') includes: aCardinalPoint) ifFalse: [ self error: self invalidCardinalPointErrorDescription ].
 	^ MarsRover new initializeAtPosition: aPosition facing: aCardinalPoint! !
 
 
@@ -639,8 +624,9 @@ beExecutedBy: aMarsRover
 MarsRoverCommand class
 	instanceVariableNames: ''!
 
-!MarsRoverCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 10:19:57'!
+!MarsRoverCommand class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:16:21'!
 canInstantiateWith: aCommand
+
 	self subclassResponsibility ! !
 
 
@@ -651,10 +637,10 @@ MarsRoverCommand subclass: #BackwardsCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!BackwardsCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:28:56'!
+!BackwardsCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 11:13:29'!
 beExecutedBy: aMarsRover
 
-	^aMarsRover moveBackwards! !
+	aMarsRover moveBackwards! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -662,8 +648,9 @@ beExecutedBy: aMarsRover
 BackwardsCommand class
 	instanceVariableNames: ''!
 
-!BackwardsCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:26'!
+!BackwardsCommand class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:18:14'!
 canInstantiateWith: aCommand
+
 	^ aCommand = $b! !
 
 
@@ -674,10 +661,10 @@ MarsRoverCommand subclass: #ForwardCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!ForwardCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:00'!
+!ForwardCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 11:13:44'!
 beExecutedBy: aMarsRover
 
-	^ aMarsRover moveForward! !
+	aMarsRover moveForward! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -685,8 +672,9 @@ beExecutedBy: aMarsRover
 ForwardCommand class
 	instanceVariableNames: ''!
 
-!ForwardCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:09'!
+!ForwardCommand class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:18:24'!
 canInstantiateWith: aCommand
+
 	^ aCommand = $f! !
 
 
@@ -697,10 +685,10 @@ MarsRoverCommand subclass: #LeftCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!LeftCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:05'!
+!LeftCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 11:13:50'!
 beExecutedBy: aMarsRover
 
-	^ aMarsRover turnLeft! !
+	aMarsRover turnLeft! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -708,8 +696,9 @@ beExecutedBy: aMarsRover
 LeftCommand class
 	instanceVariableNames: ''!
 
-!LeftCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:35'!
+!LeftCommand class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:18:30'!
 canInstantiateWith: aCommand
+
 	^ aCommand = $l! !
 
 
@@ -720,10 +709,10 @@ MarsRoverCommand subclass: #RightCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!RightCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:09'!
+!RightCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 11:13:58'!
 beExecutedBy: aMarsRover
 
-	^ aMarsRover turnRight! !
+	aMarsRover turnRight! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -731,6 +720,7 @@ beExecutedBy: aMarsRover
 RightCommand class
 	instanceVariableNames: ''!
 
-!RightCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:43'!
+!RightCommand class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 11:18:35'!
 canInstantiateWith: aCommand
+
 	^ aCommand = $r! !
