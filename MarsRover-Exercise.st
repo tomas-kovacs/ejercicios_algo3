@@ -186,7 +186,7 @@ test26WhenAMarsRoverTurnsLeftFourTimesItFacesTheInitialCardinalPoint
 
 	self marsRoverAtInitialPositionFacing: 'N' executesCommands: 'llll' andAssertsFinalCardinalPoint: 'N'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:45:15'!
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/18/2021 13:08:45'!
 test27WhenAMarsRoverReceivesAnInvalidCommandRaisesAnErrorAndEndsUpAtTheCorrespondingPositionAndCardinalPoint
 
 	| aMarsRover anOperation anErrorAssertion |
@@ -197,17 +197,12 @@ test27WhenAMarsRoverReceivesAnInvalidCommandRaisesAnErrorAndEndsUpAtTheCorrespon
 	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	.
 		
 	self executeOperation: anOperation expecting: anErrorAssertion.
-	
-	"self
-		should: [ aMarsRover executeCommandsSequence: 'frfaff'. ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	."
+
 	self assert: aMarsRover currentPosition equals: (1 @ 1).
 	self assert: aMarsRover currentCardinalPoint equals: 'E'.
 	! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:47:01'!
+!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/18/2021 13:08:57'!
 test28AMarsRoverCannotBeInstancedWithAndInvalidPosition
 
 	| anOperation anErrorAssertion |
@@ -216,12 +211,6 @@ test28AMarsRoverCannotBeInstancedWithAndInvalidPosition
 	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	.
 		
 	self executeOperation: anOperation expecting: anErrorAssertion.
-
-	"self
-		should: [MarsRover atPosition: 'position' facing: 'N'. ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	."
 ! !
 
 !MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 12:08:27'!
