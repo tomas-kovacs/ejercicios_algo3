@@ -491,15 +491,15 @@ currentPosition
 	^ position! !
 
 
-!MarsRover methodsFor: 'mars rover management' stamp: 'MW 11/17/2021 18:02:07'!
+!MarsRover methodsFor: 'mars rover management' stamp: 'MW 11/18/2021 11:03:45'!
 executeCommand: aCommand
 
-	(aCommand = $f) ifTrue: [^self moveForward ].
-	(aCommand = $b) ifTrue: [^self moveBackwards ].
-	(aCommand = $r) ifTrue: [^	orientation := orientation determineMarsRoverCardinalPointTurningRight ].
-	(aCommand = $l) ifTrue: [^	orientation := orientation determineMarsRoverCardinalPointTurningLeft ].
-	self error: self class invalidCommandErrorDescription.
-	"TODO: remove these ifs"! !
+	| theSelectedSubclass aCommandToExecute |
+	
+	theSelectedSubclass := self selectTheCommandSubclassThatCanInstantiateWith: aCommand.
+	aCommandToExecute := theSelectedSubclass new.
+	
+	aCommandToExecute beExecutedBy: self.! !
 
 !MarsRover methodsFor: 'mars rover management' stamp: 'TK 11/15/2021 11:30:17'!
 executeCommandsSequence: aCommandsSequence
@@ -568,12 +568,12 @@ moveForwardFacingWest
 
 	position := position - (1 @ 0)! !
 
-!MarsRover methodsFor: 'movement' stamp: 'TK 11/18/2021 10:03:42'!
+!MarsRover methodsFor: 'movement' stamp: 'MW 11/18/2021 11:04:13'!
 turnLeft
 
 	orientation := orientation determineMarsRoverCardinalPointTurningLeft! !
 
-!MarsRover methodsFor: 'movement' stamp: 'TK 11/18/2021 10:03:22'!
+!MarsRover methodsFor: 'movement' stamp: 'MW 11/18/2021 11:04:17'!
 turnRight
 
 	orientation := orientation determineMarsRoverCardinalPointTurningRight! !
@@ -583,6 +583,13 @@ turnRight
 selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint
 
 	^ CardinalPointOrientation subclasses detect: [ :subclass | (subclass canInstantiateWith: aCardinalPoint) ]! !
+
+
+!MarsRover methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 10:15:38'!
+selectTheCommandSubclassThatCanInstantiateWith: aCommand
+
+	^ MarsRoverCommand subclasses detect: [ :subclass | (subclass canInstantiateWith: aCommand) ]
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -626,6 +633,16 @@ beExecutedBy: aMarsRover
 
 	self subclassResponsibility! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MarsRoverCommand class' category: 'MarsRover-Exercise'!
+MarsRoverCommand class
+	instanceVariableNames: ''!
+
+!MarsRoverCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 10:19:57'!
+canInstantiateWith: aCommand
+	self subclassResponsibility ! !
+
 
 !classDefinition: #BackwardsCommand category: 'MarsRover-Exercise'!
 MarsRoverCommand subclass: #BackwardsCommand
@@ -634,10 +651,20 @@ MarsRoverCommand subclass: #BackwardsCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!BackwardsCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 09:59:47'!
+!BackwardsCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:28:56'!
 beExecutedBy: aMarsRover
 
-	aMarsRover moveBackwards! !
+	^aMarsRover moveBackwards! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'BackwardsCommand class' category: 'MarsRover-Exercise'!
+BackwardsCommand class
+	instanceVariableNames: ''!
+
+!BackwardsCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:26'!
+canInstantiateWith: aCommand
+	^ aCommand = $b! !
 
 
 !classDefinition: #ForwardCommand category: 'MarsRover-Exercise'!
@@ -647,10 +674,20 @@ MarsRoverCommand subclass: #ForwardCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!ForwardCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:00:13'!
+!ForwardCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:00'!
 beExecutedBy: aMarsRover
 
-	aMarsRover moveForward! !
+	^ aMarsRover moveForward! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ForwardCommand class' category: 'MarsRover-Exercise'!
+ForwardCommand class
+	instanceVariableNames: ''!
+
+!ForwardCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:09'!
+canInstantiateWith: aCommand
+	^ aCommand = $f! !
 
 
 !classDefinition: #LeftCommand category: 'MarsRover-Exercise'!
@@ -660,10 +697,20 @@ MarsRoverCommand subclass: #LeftCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!LeftCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:04:09'!
+!LeftCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:05'!
 beExecutedBy: aMarsRover
 
-	aMarsRover turnLeft! !
+	^ aMarsRover turnLeft! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'LeftCommand class' category: 'MarsRover-Exercise'!
+LeftCommand class
+	instanceVariableNames: ''!
+
+!LeftCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:35'!
+canInstantiateWith: aCommand
+	^ aCommand = $l! !
 
 
 !classDefinition: #RightCommand category: 'MarsRover-Exercise'!
@@ -673,7 +720,17 @@ MarsRoverCommand subclass: #RightCommand
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!RightCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:04:19'!
+!RightCommand methodsFor: 'execution' stamp: 'MW 11/18/2021 10:29:09'!
 beExecutedBy: aMarsRover
 
-	aMarsRover turnRight! !
+	^ aMarsRover turnRight! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'RightCommand class' category: 'MarsRover-Exercise'!
+RightCommand class
+	instanceVariableNames: ''!
+
+!RightCommand class methodsFor: 'as yet unclassified' stamp: 'MW 11/18/2021 11:00:43'!
+canInstantiateWith: aCommand
+	^ aCommand = $r! !
