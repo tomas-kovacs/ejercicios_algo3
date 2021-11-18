@@ -5,10 +5,10 @@ TestCase subclass: #MarsRoverTest
 	poolDictionaries: ''
 	category: 'MarsRover-Exercise'!
 
-!MarsRoverTest methodsFor: 'test - private' stamp: 'MW 11/17/2021 20:48:44'!
-executeOperation: operation expecting: errorAssertion
+!MarsRoverTest methodsFor: 'test - private' stamp: 'TK 11/18/2021 09:43:36'!
+executeOperation: anOperation expecting: anErrorAssertion
 	
-	[ operation value.
+	[ anOperation value.
 	self fail ]
 		on: Error
 		do: [ :anError | (#errorAssertion asMessageWith: anError) value ].! !
@@ -177,36 +177,36 @@ test26WhenAMarsRoverTurnsLeftFourTimesItFacesTheInitialCardinalPoint
 
 	self marsRoverAtInitialPositionFacing: 'N' executesCommands: 'llll' andAssertsFinalCardinalPoint: 'N'! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 20:48:44'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:45:15'!
 test27WhenAMarsRoverReceivesAnInvalidCommandRaisesAnErrorAndEndsUpAtTheCorrespondingPositionAndCardinalPoint
 
-	| aMarsRover anOperation errorAssertion |
+	| aMarsRover anOperation anErrorAssertion |
 	
-	aMarsRover := MarsRover atPosition: (0@0) facing: 'N'. 
+	aMarsRover := MarsRover atPosition: (0 @ 0) facing: 'N'. 
 	
-	anOperation := [ aMarsRover executeCommandsSequence: 'frfaff'. ].
-	errorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	.
+	anOperation := [ aMarsRover executeCommandsSequence: 'frfaff' ].
+	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	.
 		
-	self executeOperation: anOperation expecting: errorAssertion.
+	self executeOperation: anOperation expecting: anErrorAssertion.
 	
 	"self
 		should: [ aMarsRover executeCommandsSequence: 'frfaff'. ]
 		raise: Error
 		withExceptionDo: [ :anError |
 			self assert: anError messageText = MarsRover invalidCommandErrorDescription ]	."
-	self assert: aMarsRover currentPosition equals: (1@1).
+	self assert: aMarsRover currentPosition equals: (1 @ 1).
 	self assert: aMarsRover currentCardinalPoint equals: 'E'.
 	! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 20:52:27'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:47:01'!
 test28AMarsRoverCannotBeInstancedWithAndInvalidPosition
 
-	| anOperation errorAssertion |
+	| anOperation anErrorAssertion |
 
-	anOperation := [MarsRover atPosition: 'position' facing: 'N'. ].
-	errorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	.
+	anOperation := [ MarsRover atPosition: 'position' facing: 'N' ].
+	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	.
 		
-	self executeOperation: anOperation expecting: errorAssertion.
+	self executeOperation: anOperation expecting: anErrorAssertion.
 
 	"self
 		should: [MarsRover atPosition: 'position' facing: 'N'. ]
@@ -215,14 +215,14 @@ test28AMarsRoverCannotBeInstancedWithAndInvalidPosition
 			self assert: anError messageText = MarsRover invalidPositionErrorDescription ]	."
 ! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 20:52:33'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:46:17'!
 test29AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointType
 
-	| anOperation errorAssertion |
+	| anOperation anErrorAssertion |
 
-	anOperation := [MarsRover atPosition: (0@0) facing: (0@0). ].
-	errorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
-	self executeOperation: anOperation expecting: errorAssertion.
+	anOperation := [ MarsRover atPosition: (0 @ 0) facing: (0 @ 0) ].
+	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
+	self executeOperation: anOperation expecting: anErrorAssertion.
 
 	"self
 		should: [MarsRover atPosition: (0@0) facing: (0@0). ]
@@ -231,14 +231,14 @@ test29AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointType
 			self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	."
 ! !
 
-!MarsRoverTest methodsFor: 'test' stamp: 'MW 11/17/2021 20:52:38'!
+!MarsRoverTest methodsFor: 'test' stamp: 'TK 11/18/2021 09:46:49'!
 test30AMarsRoverCannotBeInstancedWithAndInvalidCardinalPointValue
 
-	| anOperation errorAssertion |
+	| anOperation anErrorAssertion |
 
-	anOperation := [MarsRover atPosition: (0@0) facing: 'a'. ].
-	errorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
-	self executeOperation: anOperation expecting: errorAssertion.
+	anOperation := [ MarsRover atPosition: (0 @ 0) facing: 'a' ].
+	anErrorAssertion := [ :anError | self assert: anError messageText = MarsRover invalidCardinalPointErrorDescription ]	.
+	self executeOperation: anOperation expecting: anErrorAssertion.
 
 	"self
 		should: [MarsRover atPosition: (0@0) facing: 'a'. ]
@@ -287,9 +287,10 @@ determineMarsRoverPositionMovingForward: aMarsRover
 CardinalPointOrientation class
 	instanceVariableNames: ''!
 
-!CardinalPointOrientation class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 18:08:23'!
+!CardinalPointOrientation class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:50:53'!
 canInstantiateWith: aCardinalPoint
-	self subclassResponsibility.! !
+
+	self subclassResponsibility! !
 
 
 !classDefinition: #EastOrientation category: 'MarsRover-Exercise'!
@@ -331,9 +332,10 @@ value
 EastOrientation class
 	instanceVariableNames: ''!
 
-!EastOrientation class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 17:47:26'!
+!EastOrientation class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:51:04'!
 canInstantiateWith: aCardinalPoint
-	^aCardinalPoint = 'E'! !
+
+	^ aCardinalPoint = 'E'! !
 
 
 !classDefinition: #NorthOrientation category: 'MarsRover-Exercise'!
@@ -375,9 +377,10 @@ value
 NorthOrientation class
 	instanceVariableNames: ''!
 
-!NorthOrientation class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 17:47:39'!
+!NorthOrientation class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:51:13'!
 canInstantiateWith: aCardinalPoint
-	^aCardinalPoint = 'N'! !
+
+	^ aCardinalPoint = 'N'! !
 
 
 !classDefinition: #SouthOrientation category: 'MarsRover-Exercise'!
@@ -419,9 +422,10 @@ value
 SouthOrientation class
 	instanceVariableNames: ''!
 
-!SouthOrientation class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 17:47:46'!
+!SouthOrientation class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:51:22'!
 canInstantiateWith: aCardinalPoint
-	^aCardinalPoint = 'S'! !
+
+	^ aCardinalPoint = 'S'! !
 
 
 !classDefinition: #WestOrientation category: 'MarsRover-Exercise'!
@@ -463,9 +467,10 @@ value
 WestOrientation class
 	instanceVariableNames: ''!
 
-!WestOrientation class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 17:48:33'!
+!WestOrientation class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:51:30'!
 canInstantiateWith: aCardinalPoint
-	^aCardinalPoint = 'W'! !
+
+	^ aCardinalPoint = 'W'! !
 
 
 !classDefinition: #MarsRover category: 'MarsRover-Exercise'!
@@ -502,15 +507,15 @@ executeCommandsSequence: aCommandsSequence
 	aCommandsSequence do: [ :command | self executeCommand: command ]! !
 
 
-!MarsRover methodsFor: 'initialization' stamp: 'MW 11/17/2021 18:26:44'!
+!MarsRover methodsFor: 'initialization' stamp: 'TK 11/18/2021 09:48:33'!
 initializeAtPosition: aPosition facing: aCardinalPoint
 
-	| selectedSubclass |
+	| anOrientation |
 	
 	position := aPosition.
 
-	selectedSubclass := self selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint.
-	orientation := selectedSubclass new.! !
+	anOrientation := self selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint.
+	orientation := anOrientation new.! !
 
 
 !MarsRover methodsFor: 'movement' stamp: 'TK 11/16/2021 16:29:24'!
@@ -563,6 +568,16 @@ moveForwardFacingWest
 
 	position := position - (1 @ 0)! !
 
+!MarsRover methodsFor: 'movement' stamp: 'TK 11/18/2021 10:03:42'!
+turnLeft
+
+	orientation := orientation determineMarsRoverCardinalPointTurningLeft! !
+
+!MarsRover methodsFor: 'movement' stamp: 'TK 11/18/2021 10:03:22'!
+turnRight
+
+	orientation := orientation determineMarsRoverCardinalPointTurningRight! !
+
 
 !MarsRover methodsFor: 'private' stamp: 'MW 11/17/2021 18:26:44'!
 selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint
@@ -575,23 +590,90 @@ selectTheOrientationSubclassThatCanInstantiateWith: aCardinalPoint
 MarsRover class
 	instanceVariableNames: ''!
 
-!MarsRover class methodsFor: 'instance creation' stamp: 'MW 11/17/2021 16:27:23'!
+!MarsRover class methodsFor: 'instance creation' stamp: 'TK 11/18/2021 09:50:04'!
 atPosition: aPosition facing: aCardinalPoint
 	
 	(aPosition isKindOf: Point) ifFalse: [self error: self invalidPositionErrorDescription].
-	(aCardinalPoint isKindOf: String) ifFalse: [self error: self invalidCardinalPointErrorDescription ].
 	(#('N' 'S' 'E' 'W') includes: aCardinalPoint ) ifFalse:[self error: self invalidCardinalPointErrorDescription].
 	^ MarsRover new initializeAtPosition: aPosition facing: aCardinalPoint! !
 
 
-!MarsRover class methodsFor: 'error descriptions' stamp: 'MW 11/17/2021 16:19:31'!
+!MarsRover class methodsFor: 'error descriptions' stamp: 'TK 11/18/2021 09:50:24'!
 invalidCardinalPointErrorDescription
-	^'invalid cardinal point'! !
 
-!MarsRover class methodsFor: 'error descriptions' stamp: 'MW 11/17/2021 15:50:02'!
+	^ 'invalid cardinal point'! !
+
+!MarsRover class methodsFor: 'error descriptions' stamp: 'TK 11/18/2021 09:50:32'!
 invalidCommandErrorDescription
-	^'invalid command'! !
 
-!MarsRover class methodsFor: 'error descriptions' stamp: 'MW 11/17/2021 16:08:48'!
+	^ 'invalid command'! !
+
+!MarsRover class methodsFor: 'error descriptions' stamp: 'TK 11/18/2021 09:50:39'!
 invalidPositionErrorDescription
-	^'invalid position'! !
+
+	^ 'invalid position'! !
+
+
+!classDefinition: #MarsRoverCommand category: 'MarsRover-Exercise'!
+Object subclass: #MarsRoverCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover-Exercise'!
+
+!MarsRoverCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 09:59:09'!
+beExecutedBy: aMarsRover
+
+	self subclassResponsibility! !
+
+
+!classDefinition: #BackwardsCommand category: 'MarsRover-Exercise'!
+MarsRoverCommand subclass: #BackwardsCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover-Exercise'!
+
+!BackwardsCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 09:59:47'!
+beExecutedBy: aMarsRover
+
+	aMarsRover moveBackwards! !
+
+
+!classDefinition: #ForwardCommand category: 'MarsRover-Exercise'!
+MarsRoverCommand subclass: #ForwardCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover-Exercise'!
+
+!ForwardCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:00:13'!
+beExecutedBy: aMarsRover
+
+	aMarsRover moveForward! !
+
+
+!classDefinition: #LeftCommand category: 'MarsRover-Exercise'!
+MarsRoverCommand subclass: #LeftCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover-Exercise'!
+
+!LeftCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:04:09'!
+beExecutedBy: aMarsRover
+
+	aMarsRover turnLeft! !
+
+
+!classDefinition: #RightCommand category: 'MarsRover-Exercise'!
+MarsRoverCommand subclass: #RightCommand
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'MarsRover-Exercise'!
+
+!RightCommand methodsFor: 'execution' stamp: 'TK 11/18/2021 10:04:19'!
+beExecutedBy: aMarsRover
+
+	aMarsRover turnRight! !
