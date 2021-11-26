@@ -1,6 +1,6 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: 'aPortfolio anAccount anotherAccount'
+	instanceVariableNames: 'aPortfolio anAccount anotherAccount anotherPortfolio thirdPortfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -72,13 +72,84 @@ test09APortfolioWithMutipleAccountsReturnsTheAccountsTransactions
 	
 	self assert: (OrderedCollection with: aDeposit with: anotherDeposit) equals: aPortfolio transactions.! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 18:34:02'!
+test10APortfolioWithAnEmptyPortfilioAddedHasBalanceZero
 
-!PortfolioTest methodsFor: 'setup' stamp: 'MW 11/26/2021 14:47:49'!
+	aPortfolio addPortfolio: Portfolio new.	
+	self assert: 0 * peso equals: aPortfolio balance! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 18:36:34'!
+test11APortfolioWithAnotherPortfolioWithTransactionsHasTheRightBalance
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+	self assert: 100 * peso equals: aPortfolio balance! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:03:29'!
+test12APortfolioWithMultiplePortfoliosWithTransactionsHasTheRightBalance
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	aPortfolio addPortfolio: 	thirdPortfolio.
+	
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+	self registerADepositOf: 100* peso on: anotherAccount andAddTheAccountTo: thirdPortfolio.
+	
+	self assert: 200 * peso equals: aPortfolio balance! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 18:40:59'!
+test13APortfolioWithAnotherPortfolioWithTransactionsHasTheOtherPortfolioTransactionsRegistered
+
+	| aDeposit |
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	aDeposit := self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+	self assert: (aPortfolio hasRegistered: aDeposit)! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:05:07'!
+test14APortfolioWithMultiplePortfoliosWithTransactionsHasTheOtherPortfoliosTransactionsRegistered
+
+	| aDeposit |
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	aPortfolio addPortfolio: 	thirdPortfolio.
+	
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+	aDeposit := self registerADepositOf: 100* peso on: anotherAccount andAddTheAccountTo: thirdPortfolio.
+
+	self assert: (aPortfolio hasRegistered: aDeposit)! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:17:32'!
+test15APortfolioWithAnotherPortfolioWithTransactionsHasTheOtherPortfolioTransactions
+
+	| aDeposit |
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	aDeposit := self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+
+	self assert: (OrderedCollection with: aDeposit) equals: (aPortfolio transactions)! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:18:11'!
+test16APortfolioWithMultiplePortfoliosWithTransactionsHasTheOtherPortfoliosTransactions
+
+	| aDeposit anotherDeposit |
+
+	aPortfolio addPortfolio: 	anotherPortfolio.
+	aPortfolio addPortfolio: 	thirdPortfolio.
+
+	aDeposit := self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: anotherPortfolio.
+	anotherDeposit := self registerADepositOf: 100* peso on: anotherAccount andAddTheAccountTo: thirdPortfolio.
+
+	self assert: (OrderedCollection with: aDeposit with: anotherDeposit) equals: (aPortfolio transactions)! !
+
+
+!PortfolioTest methodsFor: 'setup' stamp: 'TK 11/26/2021 19:03:11'!
 setUp
 	
 	aPortfolio := Portfolio new.
 	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.! !
+	anotherAccount := ReceptiveAccount new.
+	anotherPortfolio := Portfolio new.
+	thirdPortfolio := 	Portfolio new.! !
 
 
 !PortfolioTest methodsFor: 'test - private' stamp: 'MW 11/26/2021 14:50:54'!
@@ -470,15 +541,16 @@ for: aValue
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'accounts'
+	instanceVariableNames: 'accounts portfolios'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Portfolio methodsFor: 'initialization' stamp: 'TK 11/26/2021 10:33:44'!
+!Portfolio methodsFor: 'initialization' stamp: 'TK 11/26/2021 18:32:16'!
 initialize
 
-	accounts := OrderedCollection new! !
+	accounts := OrderedCollection new.
+	portfolios := OrderedCollection new! !
 
 
 !Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 10:34:47'!
@@ -486,24 +558,45 @@ addAccount: aReceptiveAccount
 	
 	accounts add: aReceptiveAccount! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 10:56:11'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 18:32:08'!
+addPortfolio: aPortfolio 
+	
+	portfolios add: aPortfolio! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:14:33'!
+addTransactionsTo: aTransactionsList
+	
+	accounts do: [ :anAccount | aTransactionsList addAllLast: anAccount transactions ].
+	portfolios do: [ :aPortfolio | aTransactionsList addAllLast: aPortfolio transactions ].! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 18:33:12'!
 balance
 
-	^ accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ ^ 0 * peso ]! !
+	| accountsBalance portfoliosBalance |
 
-!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/26/2021 12:15:47'!
+	accountsBalance := accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ accountsBalance := 0 * peso ].
+	portfoliosBalance := portfolios sum: [ :aPortfolio | aPortfolio balance ] ifEmpty: [ portfoliosBalance := 0 * peso ].
+
+	^ accountsBalance + portfoliosBalance! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:00:47'!
 hasRegistered: aTransaction 
 
-	accounts detect: [:anAccount | anAccount hasRegistered: aTransaction] ifNone: [^false].
-	^true.! !
+	| accountsFound portfoliosFound |
+	accountsFound := true.
+	portfoliosFound := true.
+	accounts detect: [:anAccount | anAccount hasRegistered: aTransaction] ifNone: [ accountsFound := false ].
+	portfolios detect: [ :aPortfolio | aPortfolio hasRegistered: aTransaction ] ifNone: [ portfoliosFound := false ].
+	^ accountsFound or: [ portfoliosFound ].! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/26/2021 12:29:15'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:13:00'!
 transactions
 	| accountsTransactions |
 	
 	accountsTransactions := OrderedCollection new.
+	self addTransactionsTo: accountsTransactions.
 	
-	accounts do: [:anAccount | accountsTransactions addAllLast: anAccount transactions].
+	"accounts do: [:anAccount | accountsTransactions addAllLast: anAccount transactions]."
 	
 	^ accountsTransactions! !
 
