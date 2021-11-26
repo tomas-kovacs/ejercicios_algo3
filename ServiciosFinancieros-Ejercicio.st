@@ -1,123 +1,93 @@
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #PortfolioTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'aPortfolio anAccount anotherAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 10:57:08'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:35:37'!
 test01AnEmptyPortfolioHasBalanceZero
 
-	self assert: 0 * peso equals: Portfolio new balance! !
+	self assert: 0 * peso equals: aPortfolio balance! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 10:57:45'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:47:28'!
 test02APortfolioWithOneAccountHasTheAccountBalance
 
-	| aPortfolio anAccount |
-
-	aPortfolio := Portfolio new.
-	anAccount := ReceptiveAccount new.
-	Deposit register: 100 * peso on: anAccount.
-	
-	aPortfolio addAccount: anAccount.
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
 	
 	self assert: 100 * peso equals: aPortfolio balance! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 10:58:12'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:51:14'!
 test03APortfolioWithMultipleAccountsHasTheAccountsBalance
 
-	| aPortfolio anAccount anotherAccount |
-
-	aPortfolio := Portfolio new.
-
-	anAccount := ReceptiveAccount new.
-	Deposit register: 100 * peso on: anAccount.
-
-	anotherAccount := ReceptiveAccount new.
-	Withdraw register: 200 * peso on: anotherAccount.
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
+	self registerADepositOf: 200* peso on: anotherAccount andAddTheAccountTo: aPortfolio.
 	
-	aPortfolio addAccount: anAccount.
-	aPortfolio addAccount: anotherAccount.
-	
-	self assert: -100 * peso equals: aPortfolio balance! !
+	self assert: 300 * peso equals: aPortfolio balance! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:30:28'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:38:23'!
 test04AnEmptyPortfolioDoesNotHaveRegisteredTransactions
 
-	| aPortfolio anAccount aDeposit|
-
-	aPortfolio := Portfolio new.
-
-	anAccount := ReceptiveAccount new.
-	aDeposit := Deposit register: 100 * peso on: anAccount.
-
+	| aDeposit |
+	aDeposit :=Deposit register: 100 * peso on: anAccount.
 	self deny: (aPortfolio hasRegistered: aDeposit).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:31:12'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:51:53'!
 test05APortfolioWithOneAccountHasTheAccountRegisteredTransactions
 
-	| aPortfolio anAccount aDeposit|
-
-	aPortfolio := Portfolio new.
-
-	anAccount := ReceptiveAccount new.
-	aDeposit := Deposit register: 100 * peso on: anAccount.
-	
-	aPortfolio addAccount: anAccount .
-
+	| aDeposit |	
+	aDeposit := self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
 	self assert: (aPortfolio hasRegistered: aDeposit).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:32:53'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:53:17'!
 test06APortfolioWithMultipleAccountsHasTheAccountsRegisteredTransactions
 
-	| aPortfolio anAccount otherAccount aDeposit|
+	| aDeposit|
 
-	aPortfolio := Portfolio new.
-
-	anAccount := ReceptiveAccount new.
-	Deposit register: 100 * peso on: anAccount.
-	
-	otherAccount := ReceptiveAccount new.
-	aDeposit := Deposit register: 200 * peso on: otherAccount.
-	
-	aPortfolio addAccount: anAccount .
-	aPortfolio addAccount: otherAccount .
+	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
+	aDeposit := self registerADepositOf: 200* peso on: anotherAccount andAddTheAccountTo: aPortfolio.
 
 	self assert: (aPortfolio hasRegistered: aDeposit).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:37:29'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:35:37'!
 test07AnEmptyPortfolioReturnsAnEmptyListOfTransactions
-	self assert: Portfolio new transactions isEmpty.! !
+	self assert: aPortfolio transactions isEmpty.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:37:36'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:53:38'!
 test08APortfolioWithOneAccountReturnsTheAccountTransactions
 
-	| aPortfolio anAccount aDeposit |
-	
-	aPortfolio  := Portfolio new.
-	anAccount := ReceptiveAccount new. 
-	aDeposit := Deposit register: 100*peso on: anAccount.
-	
-	aPortfolio addAccount: anAccount .	
+	| aDeposit |
+	 
+	aDeposit := 	self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
 	
 	self assert: aPortfolio transactions includes: aDeposit.! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:41:44'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 14:56:30'!
 test09APortfolioWithMutipleAccountsReturnsTheAccountsTransactions
 
-	| aPortfolio anAccount aDeposit otherAccount aWithdraw|
+	| aDeposit anotherDeposit|
+
+	aDeposit := self registerADepositOf: 100* peso on: anAccount andAddTheAccountTo: aPortfolio.
+	anotherDeposit := self registerADepositOf: 200* peso on: anotherAccount andAddTheAccountTo: aPortfolio.	
 	
-	aPortfolio  := Portfolio new.
-	anAccount := ReceptiveAccount new. 
-	otherAccount := ReceptiveAccount new.
+	self assert: (OrderedCollection with: aDeposit with: anotherDeposit) equals: aPortfolio transactions.! !
+
+
+!PortfolioTest methodsFor: 'setup' stamp: 'MW 11/26/2021 14:47:49'!
+setUp
 	
-	aWithdraw := Withdraw register: 200* peso on: anAccount.
-	aDeposit := Deposit register: 100*peso on: otherAccount.
+	aPortfolio := Portfolio new.
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.! !
+
+
+!PortfolioTest methodsFor: 'test - private' stamp: 'MW 11/26/2021 14:50:54'!
+registerADepositOf: anAmount on: theAccount andAddTheAccountTo: thePortfolio
 	
-	aPortfolio addAccount: anAccount .	
-	aPortfolio addAccount: otherAccount .
-	
-	self assert: (OrderedCollection with: aWithdraw with: aDeposit) equals: aPortfolio transactions.! !
+	| aDeposit |
+	aDeposit := Deposit register: anAmount on: theAccount.
+	thePortfolio addAccount: theAccount .	
+	^aDeposit! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -407,12 +377,12 @@ value
 TransferDeposit class
 	instanceVariableNames: ''!
 
-!TransferDeposit class methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:03:04'!
+!TransferDeposit class methodsFor: 'instance creation' stamp: 'MW 11/22/2021 15:03:04'!
 for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-!TransferDeposit class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:52:46'!
+!TransferDeposit class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 19:52:46'!
 for: aValue from: aTransfer
 
 	^ self new initializeFor: aValue from: aTransfer! !
@@ -452,12 +422,12 @@ value
 TransferWithdraw class
 	instanceVariableNames: ''!
 
-!TransferWithdraw class methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:03:08'!
+!TransferWithdraw class methodsFor: 'instance creation' stamp: 'MW 11/22/2021 15:03:08'!
 for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-!TransferWithdraw class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:22:00'!
+!TransferWithdraw class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 20:22:00'!
 for: aValue from: aTransfer
 
 	^ self new initializeFor: aValue from: aTransfer! !
@@ -521,14 +491,13 @@ balance
 
 	^ accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ ^ 0 * peso ]! !
 
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 11/26/2021 12:15:47'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/26/2021 12:15:47'!
 hasRegistered: aTransaction 
 
 	accounts detect: [:anAccount | anAccount hasRegistered: aTransaction] ifNone: [^false].
 	^true.! !
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 11/26/2021 12:29:15'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/26/2021 12:29:15'!
 transactions
 	| accountsTransactions |
 	
@@ -593,26 +562,27 @@ Object subclass: #Transfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 12:32:58'!
-balanceValue
-	^ amount.! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:38:51'!
-depositLeg
-	
-	^ transferDeposit! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:34:50'!
+!Transfer methodsFor: 'initialization' stamp: 'TK 11/25/2021 20:34:50'!
 initializeWithDepositLeg: aDepositLeg andWithdrawLeg: aWithdrawLeg for: anAmount
 	amount := anAmount.
 	transferDeposit := aDepositLeg.
 	transferWithdraw := aWithdrawLeg.! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 11:56:51'!
+
+!Transfer methodsFor: 'main protocol' stamp: 'MW 11/22/2021 12:32:58'!
+balanceValue
+	^ amount.! !
+
+!Transfer methodsFor: 'main protocol' stamp: 'TK 11/25/2021 19:38:51'!
+depositLeg
+	
+	^ transferDeposit! !
+
+!Transfer methodsFor: 'main protocol' stamp: 'MW 11/22/2021 11:56:51'!
 transferedAmount
 	^ amount.! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:39:44'!
+!Transfer methodsFor: 'main protocol' stamp: 'TK 11/25/2021 19:39:44'!
 withdrawLeg
 	
 	^ transferWithdraw! !
@@ -623,7 +593,7 @@ withdrawLeg
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:05:52'!
+!Transfer class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 21:05:52'!
 from: anOriginAccount to: aDestinationAccount for: anAmountToTransfer 
 	
 	| transfer transferWithdraw transferDeposit |
@@ -640,28 +610,29 @@ from: anOriginAccount to: aDestinationAccount for: anAmountToTransfer
 	
 	^ transfer! !
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:07:42'!
-transferToTheSameAccountErrorDescription
-
-	^ 'Cannot transfer to the same account'! !
-
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:01:11'!
-transferWithNegativeValueErrorDescription
-
-	^ 'A transfer value cannot be negative'! !
-
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:57:01'!
-transferWithValueZeroErrorDescription
-
-	^ 'A transfer value cannot be zero'! !
-
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:00:40'!
+!Transfer class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 21:00:40'!
 validateTransferAmount: anAmountToTransfer
 
 	(anAmountToTransfer = 0) ifTrue: [ self error: self transferWithValueZeroErrorDescription ].
 	(anAmountToTransfer < 0) ifTrue: [ self error: self transferWithNegativeValueErrorDescription ]! !
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:07:21'!
+!Transfer class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 21:07:21'!
 validateTransferOriginAccount: anOriginAccount andDestinationAccount: aDestinationAccount
 
 	(anOriginAccount = aDestinationAccount) ifTrue: [ self error: self transferToTheSameAccountErrorDescription ]! !
+
+
+!Transfer class methodsFor: 'error descriptions' stamp: 'TK 11/25/2021 21:07:42'!
+transferToTheSameAccountErrorDescription
+
+	^ 'Cannot transfer to the same account'! !
+
+!Transfer class methodsFor: 'error descriptions' stamp: 'TK 11/25/2021 21:01:11'!
+transferWithNegativeValueErrorDescription
+
+	^ 'A transfer value cannot be negative'! !
+
+!Transfer class methodsFor: 'error descriptions' stamp: 'TK 11/25/2021 20:57:01'!
+transferWithValueZeroErrorDescription
+
+	^ 'A transfer value cannot be zero'! !
