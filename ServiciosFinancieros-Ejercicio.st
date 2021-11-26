@@ -41,6 +41,84 @@ test03APortfolioWithMultipleAccountsHasTheAccountsBalance
 	
 	self assert: -100 * peso equals: aPortfolio balance! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:30:28'!
+test04AnEmptyPortfolioDoesNotHaveRegisteredTransactions
+
+	| aPortfolio anAccount aDeposit|
+
+	aPortfolio := Portfolio new.
+
+	anAccount := ReceptiveAccount new.
+	aDeposit := Deposit register: 100 * peso on: anAccount.
+
+	self deny: (aPortfolio hasRegistered: aDeposit).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:31:12'!
+test05APortfolioWithOneAccountHasTheAccountRegisteredTransactions
+
+	| aPortfolio anAccount aDeposit|
+
+	aPortfolio := Portfolio new.
+
+	anAccount := ReceptiveAccount new.
+	aDeposit := Deposit register: 100 * peso on: anAccount.
+	
+	aPortfolio addAccount: anAccount .
+
+	self assert: (aPortfolio hasRegistered: aDeposit).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:32:53'!
+test06APortfolioWithMultipleAccountsHasTheAccountsRegisteredTransactions
+
+	| aPortfolio anAccount otherAccount aDeposit|
+
+	aPortfolio := Portfolio new.
+
+	anAccount := ReceptiveAccount new.
+	Deposit register: 100 * peso on: anAccount.
+	
+	otherAccount := ReceptiveAccount new.
+	aDeposit := Deposit register: 200 * peso on: otherAccount.
+	
+	aPortfolio addAccount: anAccount .
+	aPortfolio addAccount: otherAccount .
+
+	self assert: (aPortfolio hasRegistered: aDeposit).! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:37:29'!
+test07AnEmptyPortfolioReturnsAnEmptyListOfTransactions
+	self assert: Portfolio new transactions isEmpty.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:37:36'!
+test08APortfolioWithOneAccountReturnsTheAccountTransactions
+
+	| aPortfolio anAccount aDeposit |
+	
+	aPortfolio  := Portfolio new.
+	anAccount := ReceptiveAccount new. 
+	aDeposit := Deposit register: 100*peso on: anAccount.
+	
+	aPortfolio addAccount: anAccount .	
+	
+	self assert: aPortfolio transactions includes: aDeposit.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/26/2021 12:41:44'!
+test09APortfolioWithMutipleAccountsReturnsTheAccountsTransactions
+
+	| aPortfolio anAccount aDeposit otherAccount aWithdraw|
+	
+	aPortfolio  := Portfolio new.
+	anAccount := ReceptiveAccount new. 
+	otherAccount := ReceptiveAccount new.
+	
+	aWithdraw := Withdraw register: 200* peso on: anAccount.
+	aDeposit := Deposit register: 100*peso on: otherAccount.
+	
+	aPortfolio addAccount: anAccount .	
+	aPortfolio addAccount: otherAccount .
+	
+	self assert: (OrderedCollection with: aWithdraw with: aDeposit) equals: aPortfolio transactions.! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -442,6 +520,23 @@ addAccount: aReceptiveAccount
 balance
 
 	^ accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ ^ 0 * peso ]! !
+
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 11/26/2021 12:15:47'!
+hasRegistered: aTransaction 
+
+	accounts detect: [:anAccount | anAccount hasRegistered: aTransaction] ifNone: [^false].
+	^true.! !
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 11/26/2021 12:29:15'!
+transactions
+	| accountsTransactions |
+	
+	accountsTransactions := OrderedCollection new.
+	
+	accounts do: [:anAccount | accountsTransactions addAllLast: anAccount transactions].
+	
+	^ accountsTransactions! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
