@@ -146,50 +146,67 @@ test04ATransferGetsRegisteredInTheDestinationAccount
 	
 	self assert: (destinationAccount hasTransferRegistered: aTransfer).! !
 
-!TransferTest methodsFor: 'test' stamp: 'MW 11/22/2021 15:48:20'!
-test05CounterpartOfTheOriginAccountInTransferIsTheDestinationAccount
+!TransferTest methodsFor: 'test' stamp: 'TK 11/25/2021 20:37:30'!
+test05TheCounterpartOfTheDepositLegIsTheWithdrawLeg
 	
-	| aTransfer originAccount destinationAccount aCounterpart |
+	| aTransfer originAccount destinationAccount |
 	
 	originAccount  := ReceptiveAccount new.
 	destinationAccount  := ReceptiveAccount new.
 	
 	aTransfer := Transfer from: originAccount to: destinationAccount for: 100* peso.
 	
-	aCounterpart := originAccount counterpartOf: aTransfer.
-	
-	self assert: destinationAccount equals: aCounterpart.	! !
+	self assert: aTransfer depositLeg equals: aTransfer withdrawLeg counterpart! !
 
-!TransferTest methodsFor: 'test' stamp: 'MW 11/22/2021 15:48:50'!
-test06CounterpartOfTheDestinationAccountInTransferIsTheOriginAccount
+!TransferTest methodsFor: 'test' stamp: 'TK 11/25/2021 20:51:38'!
+test06TheCounterpartOfTheWithdrawLegIsTheDepositLeg
 	
-	| aTransfer originAccount destinationAccount aCounterpart |
+	| aTransfer originAccount destinationAccount |
 	
 	originAccount  := ReceptiveAccount new.
 	destinationAccount  := ReceptiveAccount new.
 	
 	aTransfer := Transfer from: originAccount to: destinationAccount for: 100* peso.
 	
-	aCounterpart := destinationAccount counterpartOf: aTransfer.
-	
-	self assert: originAccount equals: aCounterpart.	! !
+	self assert: aTransfer withdrawLeg equals: aTransfer depositLeg counterpart! !
 
-!TransferTest methodsFor: 'test' stamp: 'MW 11/22/2021 15:49:40'!
-test07AnAccountNotInvolvedInATransferRaisesAnErrorWhenAskedForItsCounterpart
+!TransferTest methodsFor: 'test' stamp: 'TK 11/25/2021 21:02:07'!
+test07ATransferAmountCannotBeZero
 	
-	| aTransfer originAccount destinationAccount nonTransferAccount |
+	| originAccount destinationAccount |
 	
 	originAccount  := ReceptiveAccount new.
 	destinationAccount  := ReceptiveAccount new.
-	nonTransferAccount := ReceptiveAccount new.
-	
-	aTransfer := Transfer from: originAccount to: destinationAccount for: 100* peso.
-	
+	 
 	self
-		should: [ nonTransferAccount counterpartOf: aTransfer ]
-		raise: Error
-		withExceptionDo: [ :anError |
-			self assert: anError messageText = ReceptiveAccount accountNotInvolvedInTransferErrorDescription ]! !
+		should: [ Transfer from: originAccount to: destinationAccount for: 0 * peso ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Transfer transferWithValueZeroErrorDescription ]! !
+
+!TransferTest methodsFor: 'test' stamp: 'TK 11/25/2021 21:02:22'!
+test08ATransferAmountCannotBeNegative
+	
+	| originAccount destinationAccount |
+	
+	originAccount  := ReceptiveAccount new.
+	destinationAccount  := ReceptiveAccount new.
+	 
+	self
+		should: [ Transfer from: originAccount to: destinationAccount for: -100 * peso ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Transfer transferWithNegativeValueErrorDescription ]! !
+
+!TransferTest methodsFor: 'test' stamp: 'TK 11/25/2021 21:08:08'!
+test09ATransferCannotBeMadeToTheSameAccount
+	
+	| account |
+	
+	account  := ReceptiveAccount new.
+	 
+	self
+		should: [ Transfer from: account to: account for: 100 * peso ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Transfer transferToTheSameAccountErrorDescription ]! !
 
 
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Ejercicio'!
@@ -221,6 +238,17 @@ register: aValue on: account
 	| transaction |
 	
 	transaction := self for: aValue.
+	account register: transaction.
+		
+	^ transaction! !
+
+!AccountTransaction class methodsFor: 'instance creation' stamp: 'TK 11/25/2021 20:46:29'!
+register: aValue on: account fromTransfer: aTransfer
+
+	| transaction |
+	
+	transaction := self for: aValue from: aTransfer.
+	account registerTransfer: aTransfer.
 	account register: transaction.
 		
 	^ transaction! !
@@ -263,7 +291,7 @@ for: aValue
 
 !classDefinition: #TransferDeposit category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #TransferDeposit
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -272,10 +300,16 @@ AccountTransaction subclass: #TransferDeposit
 balanceValue
 	^ self value.! !
 
-!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 14:59:19'!
-initializeFor: aValue
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:36:26'!
+counterpart
 
-	value := aValue ! !
+	^ transfer withdrawLeg! !
+
+!TransferDeposit methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:53:19'!
+initializeFor: aValue from: aTransfer
+
+	value := aValue.
+	transfer := aTransfer! !
 
 !TransferDeposit methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 14:57:13'!
 value
@@ -292,10 +326,15 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
+!TransferDeposit class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:52:46'!
+for: aValue from: aTransfer
+
+	^ self new initializeFor: aValue from: aTransfer! !
+
 
 !classDefinition: #TransferWithdraw category: 'ServiciosFinancieros-Ejercicio'!
 AccountTransaction subclass: #TransferWithdraw
-	instanceVariableNames: 'value'
+	instanceVariableNames: 'value transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -304,10 +343,16 @@ AccountTransaction subclass: #TransferWithdraw
 balanceValue
 	^ self value negated.! !
 
-!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 14:59:30'!
-initializeFor: aValue
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:36:36'!
+counterpart
 
-	value := aValue ! !
+	^ transfer depositLeg! !
+
+!TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:21:26'!
+initializeFor: aValue from: aTransfer
+
+	value := aValue.
+	transfer := aTransfer! !
 
 !TransferWithdraw methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 14:57:56'!
 value
@@ -323,6 +368,11 @@ TransferWithdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+!TransferWithdraw class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:22:00'!
+for: aValue from: aTransfer
+
+	^ self new initializeFor: aValue from: aTransfer! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Ejercicio'!
@@ -403,41 +453,14 @@ transactions
 	^ transactions copy! !
 
 
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:43:23'!
-counterpartOf: aTransfer
-	
-	(transfers includes: aTransfer) ifFalse: [^ self class error: self class accountNotInvolvedInTransferErrorDescription ].
-	aTransfer originAccount  = self ifTrue:[^ aTransfer destinationAccount ].
-	^ aTransfer originAccount .! !
-
 !ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:23:51'!
 registerTransfer: aTransfer
 	transfers add: aTransfer .! !
 
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:25:04'!
-registerTransferAsADestinationAccount: aTransfer 
-	TransferDeposit register: aTransfer transferedAmount on: self.
-	self registerTransfer: aTransfer.! !
-
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:25:12'!
-registerTransferAsAnOriginAccount: aTransfer 
-	TransferWithdraw register: aTransfer transferedAmount on: self.
-	self registerTransfer: aTransfer.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'ReceptiveAccount class' category: 'ServiciosFinancieros-Ejercicio'!
-ReceptiveAccount class
-	instanceVariableNames: ''!
-
-!ReceptiveAccount class methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:41:28'!
-accountNotInvolvedInTransferErrorDescription
-	^ 'the account is not involved in this transaction'! !
-
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Transfer
-	instanceVariableNames: 'amount destinationAccount originAccount'
+	instanceVariableNames: 'amount transferDeposit transferWithdraw'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -446,23 +469,25 @@ Object subclass: #Transfer
 balanceValue
 	^ amount.! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 12:05:13'!
-destinationAccount
-	^ destinationAccount.! !
+!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:38:51'!
+depositLeg
+	
+	^ transferDeposit! !
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:34:52'!
-initializeTransferFrom: anOriginAccount to: aDestinationAccount for: anAmount
+!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:34:50'!
+initializeWithDepositLeg: aDepositLeg andWithdrawLeg: aWithdrawLeg for: anAmount
 	amount := anAmount.
-	destinationAccount := aDestinationAccount.
-	originAccount  := anOriginAccount .! !
-
-!Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:31:24'!
-originAccount
-	^originAccount.! !
+	transferDeposit := aDepositLeg.
+	transferWithdraw := aWithdrawLeg.! !
 
 !Transfer methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 11:56:51'!
 transferedAmount
 	^ amount.! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 19:39:44'!
+withdrawLeg
+	
+	^ transferWithdraw! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -470,15 +495,45 @@ transferedAmount
 Transfer class
 	instanceVariableNames: ''!
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'MW 11/22/2021 15:12:42'!
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:05:52'!
 from: anOriginAccount to: aDestinationAccount for: anAmountToTransfer 
 	
-	| transfer|
+	| transfer transferWithdraw transferDeposit |
 	
-	transfer := self new initializeTransferFrom: anOriginAccount to: aDestinationAccount for: anAmountToTransfer .
-
-	anOriginAccount registerTransferAsAnOriginAccount: transfer.
-	aDestinationAccount registerTransferAsADestinationAccount: transfer.
-
+	self validateTransferAmount: anAmountToTransfer.
+	self validateTransferOriginAccount: anOriginAccount andDestinationAccount: aDestinationAccount.
 	
-	^transfer! !
+	transfer := self new.
+
+	transferWithdraw := TransferWithdraw register: anAmountToTransfer on: anOriginAccount fromTransfer: transfer.
+	transferDeposit := TransferDeposit register: anAmountToTransfer on: aDestinationAccount fromTransfer: transfer.
+	
+	transfer initializeWithDepositLeg: transferDeposit andWithdrawLeg: transferWithdraw for: anAmountToTransfer.
+	
+	^ transfer! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:07:42'!
+transferToTheSameAccountErrorDescription
+
+	^ 'Cannot transfer to the same account'! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:01:11'!
+transferWithNegativeValueErrorDescription
+
+	^ 'A transfer value cannot be negative'! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 20:57:01'!
+transferWithValueZeroErrorDescription
+
+	^ 'A transfer value cannot be zero'! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:00:40'!
+validateTransferAmount: anAmountToTransfer
+
+	(anAmountToTransfer = 0) ifTrue: [ self error: self transferWithValueZeroErrorDescription ].
+	(anAmountToTransfer < 0) ifTrue: [ self error: self transferWithNegativeValueErrorDescription ]! !
+
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'TK 11/25/2021 21:07:21'!
+validateTransferOriginAccount: anOriginAccount andDestinationAccount: aDestinationAccount
+
+	(anOriginAccount = aDestinationAccount) ifTrue: [ self error: self transferToTheSameAccountErrorDescription ]! !
