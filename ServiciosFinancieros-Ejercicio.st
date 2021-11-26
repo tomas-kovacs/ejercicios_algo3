@@ -141,6 +141,57 @@ test16APortfolioWithMultiplePortfoliosWithTransactionsHasTheOtherPortfoliosTrans
 
 	self assert: (OrderedCollection with: aDeposit with: anotherDeposit) equals: (aPortfolio transactions)! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:24:28'!
+test17APortfolioCannotAddTheSameAccountTwice
+
+	aPortfolio addAccount: anAccount.
+	
+	self
+		should: [ aPortfolio addAccount: anAccount ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Portfolio cannotAddTheSameAccountTwiceErrorDescription ]! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:45:04'!
+test18APortfolioCannotAddAnAccountThatIsInAChildPortfolio
+
+	aPortfolio addPortfolio: anotherPortfolio.
+	anotherPortfolio addAccount: anAccount.
+	
+	self
+		should: [ aPortfolio addAccount: anAccount ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Portfolio cannotAddAnAccountAChildPortfolioAlreadyHasErrorDescription ]! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:45:40'!
+test19APortfolioCannotBeAddedToItself
+	
+	self
+		should: [ aPortfolio addPortfolio: aPortfolio ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Portfolio aPortfolioCannotBeAddedToItselfErrorDescription ]! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 19:55:38'!
+test20APortfolioCannotAddAnAccountThatIsInAParentPortfolio
+	
+	aPortfolio addAccount: anAccount.
+	aPortfolio addPortfolio: anotherPortfolio.
+	
+	self
+		should: [ anotherPortfolio addAccount: anAccount ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Portfolio cannotAddAnAccountAParentPortfolioAlreadyHasErrorDescription ]! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/26/2021 20:01:24'!
+test21APortfolioWithAnAccountCannotAddAPortfolioWithTheSameAccount
+	
+	aPortfolio addAccount: anAccount.
+	anotherPortfolio addAccount: anAccount.
+	
+	self
+		should: [ aPortfolio addPortfolio: anotherPortfolio ]
+		raise: Error 
+		withExceptionDo: [ :anError | self assert: anError messageText equals: Portfolio cannotAddAPortfolioThatHasAnAccountThisPortfolioAlreadyHasErrorDescription ]! !
+
 
 !PortfolioTest methodsFor: 'setup' stamp: 'TK 11/26/2021 19:03:11'!
 setUp
@@ -159,6 +210,7 @@ registerADepositOf: anAmount on: theAccount andAddTheAccountTo: thePortfolio
 	aDeposit := Deposit register: anAmount on: theAccount.
 	thePortfolio addAccount: theAccount .	
 	^aDeposit! !
+
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
@@ -541,7 +593,7 @@ for: aValue
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Ejercicio'!
 Object subclass: #Portfolio
-	instanceVariableNames: 'accounts portfolios'
+	instanceVariableNames: 'accounts portfolios parentPortfolio'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
@@ -553,15 +605,40 @@ initialize
 	portfolios := OrderedCollection new! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 10:34:47'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:55:12'!
 addAccount: aReceptiveAccount 
 	
+	(self hasAccount: aReceptiveAccount) ifTrue: [ self error: self class cannotAddTheSameAccountTwiceErrorDescription ].
+
+	portfolios do: [ :aPortfolio | 
+		(aPortfolio hasAccount: aReceptiveAccount) ifTrue: [
+			self error: self class cannotAddAnAccountAChildPortfolioAlreadyHasErrorDescription
+		]
+	].
+
+	(parentPortfolio = nil) ifFalse: [
+		(parentPortfolio hasAccount: aReceptiveAccount) ifTrue: [
+			self error: self class cannotAddAnAccountAParentPortfolioAlreadyHasErrorDescription
+		]
+	].
+
 	accounts add: aReceptiveAccount! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 18:32:08'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 20:00:51'!
 addPortfolio: aPortfolio 
 	
-	portfolios add: aPortfolio! !
+	(aPortfolio = self) ifTrue: [ self error: self class aPortfolioCannotBeAddedToItselfErrorDescription ].
+	
+	
+	accounts do: [ :anAccount |
+		(aPortfolio hasAccount: anAccount) ifTrue: [
+			self error: self class cannotAddAPortfolioThatHasAnAccountThisPortfolioAlreadyHasErrorDescription 
+		]
+	].
+	
+	
+	portfolios add: aPortfolio.
+	aPortfolio beChildPortfolioOf: self! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:14:33'!
 addTransactionsTo: aTransactionsList
@@ -579,26 +656,64 @@ balance
 
 	^ accountsBalance + portfoliosBalance! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:00:47'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:50:49'!
+beChildPortfolioOf: aPortfolio 
+	
+	parentPortfolio := aPortfolio! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:34:19'!
+hasAccount: aReceptiveAccount 
+
+	^ accounts includes: aReceptiveAccount! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:20:35'!
 hasRegistered: aTransaction 
 
 	| accountsFound portfoliosFound |
 	accountsFound := true.
 	portfoliosFound := true.
-	accounts detect: [:anAccount | anAccount hasRegistered: aTransaction] ifNone: [ accountsFound := false ].
+	accounts detect: [ :anAccount | anAccount hasRegistered: aTransaction ] ifNone: [ accountsFound := false ].
 	portfolios detect: [ :aPortfolio | aPortfolio hasRegistered: aTransaction ] ifNone: [ portfoliosFound := false ].
 	^ accountsFound or: [ portfoliosFound ].! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:13:00'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:20:02'!
 transactions
 	| accountsTransactions |
 	
 	accountsTransactions := OrderedCollection new.
 	self addTransactionsTo: accountsTransactions.
-	
-	"accounts do: [:anAccount | accountsTransactions addAllLast: anAccount transactions]."
-	
 	^ accountsTransactions! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'TK 11/26/2021 19:40:07'!
+aPortfolioCannotBeAddedToItselfErrorDescription
+
+	^ 'A portfolio cannot be added to itself'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'TK 11/26/2021 19:58:52'!
+cannotAddAPortfolioThatHasAnAccountThisPortfolioAlreadyHasErrorDescription
+
+	^ 'The other portfolio has an account this portfolio already has'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'TK 11/26/2021 19:54:51'!
+cannotAddAnAccountAChildPortfolioAlreadyHasErrorDescription
+
+	^ 'A child portfolio has this account'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'TK 11/26/2021 19:54:39'!
+cannotAddAnAccountAParentPortfolioAlreadyHasErrorDescription
+
+	^ 'The parent portfolio has this account'! !
+
+!Portfolio class methodsFor: 'error descriptions' stamp: 'TK 11/26/2021 19:25:36'!
+cannotAddTheSameAccountTwiceErrorDescription
+
+	^ 'Cannot add the same account twice'! !
 
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Ejercicio'!
