@@ -211,7 +211,6 @@ registerADepositOf: anAmount on: theAccount andAddTheAccountTo: thePortfolio
 	thePortfolio addAccount: theAccount .	
 	^aDeposit! !
 
-
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Ejercicio'!
 TestCase subclass: #ReceptiveAccountTest
@@ -393,8 +392,8 @@ Object subclass: #AccountTransaction
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Ejercicio'!
 
-!AccountTransaction methodsFor: 'value' stamp: 'TK 11/18/2021 21:37:30'!
-balanceValue
+!AccountTransaction methodsFor: 'value' stamp: 'TK 11/29/2021 09:53:56'!
+affectBalance: aBalance
 
 	self subclassResponsibility ! !
 
@@ -444,10 +443,10 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'value' stamp: 'TK 11/18/2021 21:37:48'!
-balanceValue
+!Deposit methodsFor: 'value' stamp: 'TK 11/29/2021 09:55:06'!
+affectBalance: aBalance
 
-	^ value! !
+	^ aBalance + value! !
 
 !Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
 value
@@ -486,9 +485,10 @@ counterpart
 	^ transfer withdrawLeg! !
 
 
-!TransferDeposit methodsFor: 'value' stamp: 'MW 11/22/2021 14:57:36'!
-balanceValue
-	^ self value.! !
+!TransferDeposit methodsFor: 'value' stamp: 'TK 11/29/2021 09:57:26'!
+affectBalance: aBalance
+
+	^ aBalance + self value.! !
 
 !TransferDeposit methodsFor: 'value' stamp: 'MW 11/22/2021 14:57:13'!
 value
@@ -531,9 +531,10 @@ counterpart
 	^ transfer depositLeg! !
 
 
-!TransferWithdraw methodsFor: 'value' stamp: 'MW 11/22/2021 14:57:47'!
-balanceValue
-	^ self value negated.! !
+!TransferWithdraw methodsFor: 'value' stamp: 'TK 11/29/2021 09:57:57'!
+affectBalance: aBalance
+
+	^ aBalance - self value! !
 
 !TransferWithdraw methodsFor: 'value' stamp: 'MW 11/22/2021 14:57:56'!
 value
@@ -569,10 +570,10 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Withdraw methodsFor: 'value' stamp: 'TK 11/18/2021 21:37:58'!
-balanceValue
+!Withdraw methodsFor: 'value' stamp: 'TK 11/29/2021 09:56:20'!
+affectBalance: aBalance
 
-	^ value negated! !
+	^ aBalance - value! !
 
 !Withdraw methodsFor: 'value' stamp: 'TK 11/18/2021 21:35:47'!
 value
@@ -605,46 +606,26 @@ initialize
 	portfolios := OrderedCollection new! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:55:12'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/29/2021 09:13:09'!
 addAccount: aReceptiveAccount 
 	
-	(self hasAccount: aReceptiveAccount) ifTrue: [ self error: self class cannotAddTheSameAccountTwiceErrorDescription ].
+	self validateThatPortfolioDoesNotHaveAccount: aReceptiveAccount.
 
-	portfolios do: [ :aPortfolio | 
-		(aPortfolio hasAccount: aReceptiveAccount) ifTrue: [
-			self error: self class cannotAddAnAccountAChildPortfolioAlreadyHasErrorDescription
-		]
-	].
+	self validateThatChildPortfoliosDoNotHaveAccount: aReceptiveAccount.
 
-	(parentPortfolio = nil) ifFalse: [
-		(parentPortfolio hasAccount: aReceptiveAccount) ifTrue: [
-			self error: self class cannotAddAnAccountAParentPortfolioAlreadyHasErrorDescription
-		]
-	].
+	self validateThatParentPortfolioDoesNotHaveAccount: aReceptiveAccount.
 
 	accounts add: aReceptiveAccount! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 20:00:51'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/29/2021 09:47:21'!
 addPortfolio: aPortfolio 
 	
-	(aPortfolio = self) ifTrue: [ self error: self class aPortfolioCannotBeAddedToItselfErrorDescription ].
-	
-	
-	accounts do: [ :anAccount |
-		(aPortfolio hasAccount: anAccount) ifTrue: [
-			self error: self class cannotAddAPortfolioThatHasAnAccountThisPortfolioAlreadyHasErrorDescription 
-		]
-	].
-	
-	
+	self validateThatPortfolioIsNotSelf: aPortfolio.
+
+	self validateThatPortfolioDoesNotHaveAnAccountFrom: aPortfolio.
+
 	portfolios add: aPortfolio.
 	aPortfolio beChildPortfolioOf: self! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:14:33'!
-addTransactionsTo: aTransactionsList
-	
-	accounts do: [ :anAccount | aTransactionsList addAllLast: anAccount transactions ].
-	portfolios do: [ :aPortfolio | aTransactionsList addAllLast: aPortfolio transactions ].! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 18:33:12'!
 balance
@@ -655,16 +636,6 @@ balance
 	portfoliosBalance := portfolios sum: [ :aPortfolio | aPortfolio balance ] ifEmpty: [ portfoliosBalance := 0 * peso ].
 
 	^ accountsBalance + portfoliosBalance! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:50:49'!
-beChildPortfolioOf: aPortfolio 
-	
-	parentPortfolio := aPortfolio! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:34:19'!
-hasAccount: aReceptiveAccount 
-
-	^ accounts includes: aReceptiveAccount! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'TK 11/26/2021 19:20:35'!
 hasRegistered: aTransaction 
@@ -683,6 +654,59 @@ transactions
 	accountsTransactions := OrderedCollection new.
 	self addTransactionsTo: accountsTransactions.
 	^ accountsTransactions! !
+
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/26/2021 19:14:33'!
+addTransactionsTo: aTransactionsList
+	
+	accounts do: [ :anAccount | aTransactionsList addAllLast: anAccount transactions ].
+	portfolios do: [ :aPortfolio | aTransactionsList addAllLast: aPortfolio transactions ].! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/26/2021 19:50:49'!
+beChildPortfolioOf: aPortfolio 
+	
+	parentPortfolio := aPortfolio! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/26/2021 19:34:19'!
+hasAccount: aReceptiveAccount 
+
+	^ accounts includes: aReceptiveAccount! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:42:29'!
+ifPortfolio: aPortfolio hasAccount: aReceptiveAccount execute: anOperation
+
+	(aPortfolio hasAccount: aReceptiveAccount) ifTrue: [		anOperation value ]! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:43:30'!
+validateThatChildPortfoliosDoNotHaveAccount: aReceptiveAccount
+
+	portfolios do: [ :aPortfolio |
+		self ifPortfolio: aPortfolio hasAccount: aReceptiveAccount execute: [ self error: self class cannotAddAnAccountAChildPortfolioAlreadyHasErrorDescription ]
+	]! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:44:08'!
+validateThatParentPortfolioDoesNotHaveAccount: aReceptiveAccount
+
+	(parentPortfolio = nil) ifFalse: [
+		self ifPortfolio: parentPortfolio hasAccount: aReceptiveAccount execute: [ self error: self class cannotAddAnAccountAParentPortfolioAlreadyHasErrorDescription ]
+	]! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:44:55'!
+validateThatPortfolioDoesNotHaveAccount: aReceptiveAccount
+
+	self ifPortfolio: self hasAccount: aReceptiveAccount execute: [ self error: self class cannotAddTheSameAccountTwiceErrorDescription ]! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:45:50'!
+validateThatPortfolioDoesNotHaveAnAccountFrom: aPortfolio
+
+	accounts do: [ :anAccount |
+		self ifPortfolio: aPortfolio hasAccount: anAccount execute: [ self error: self class cannotAddAPortfolioThatHasAnAccountThisPortfolioAlreadyHasErrorDescription ]
+	]! !
+
+!Portfolio methodsFor: 'private' stamp: 'TK 11/29/2021 09:47:34'!
+validateThatPortfolioIsNotSelf: aPortfolio
+
+	(aPortfolio = self) ifTrue: [ self error: self class aPortfolioCannotBeAddedToItselfErrorDescription ]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -730,10 +754,13 @@ initialize
 	transfers := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/18/2021 21:38:12'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/29/2021 10:05:12'!
 balance
 
-	^transactions sum: [ :aTransaction | aTransaction balanceValue ] ifEmpty: [ 0 ]! !
+	| balance |
+	balance := 0.
+	transactions do: [ :aTransaction | balance := aTransaction affectBalance: balance ].
+	^ balance! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/17/2019 03:28:43'!
 hasRegistered: aTransaction
