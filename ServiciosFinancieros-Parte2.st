@@ -268,6 +268,27 @@ test19APortfolioWithAnAccountAndAPortfolioWithAnotherAccountHasEveryAccountSumma
 
 	self assert: expectedSummary equals: aPortfolio summary.! !
 
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:28:02'!
+test20APortfolioWithoutAccountsHasZeroNetTransfer
+	
+	| aPortfolio |
+
+	aPortfolio := Portfolio new.
+	
+	self assert: 0 * peso equals: aPortfolio netTransfer! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:28:43'!
+test21APortfolioWithAccountsWithTransfersHasTheRightNetTransfer
+	
+	| aPortfolio anOriginAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anOriginAccount.
+	
+	Transfer amount: 100 * peso from: anOriginAccount to: ReceptiveAccount new.
+	
+	self assert: -100 * peso equals: aPortfolio netTransfer! !
+
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Parte2'!
 TestCase subclass: #ReceptiveAccountTest
@@ -427,6 +448,37 @@ test14AReceptiveAccountWithATransferAsADestinationAccountHasTheTransferDepositIn
 	Transfer amount: 100*peso from: anAccount to: anotherAccount.
 
 	self assert: (OrderedCollection with: 'Entrada por transferencia de 100 pesos' with: 'Balance = 100 pesos') equals: anotherAccount summary.! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:15:39'!
+test15AReceptiveAccountWithNoTransfersHasNetTransferZero
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	
+	self assert: 0 * peso equals: anAccount netTransfer! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:16:45'!
+test16AReceptiveAccountWithATransferAsAnOriginAccountHasNegativeNetTransfer
+
+	| anOriginAccount aDestinationAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aDestinationAccount := ReceptiveAccount new.
+	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
+
+	self assert: -100 * peso equals: anOriginAccount netTransfer! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:17:22'!
+test17AReceptiveAccountWithATransferAsADestinationAccountHasPositiveNetTransfer
+
+	| anOriginAccount aDestinationAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aDestinationAccount := ReceptiveAccount new.
+	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
+
+	self assert: 100 * peso equals: aDestinationAccount netTransfer! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Parte2'!
@@ -602,15 +654,30 @@ hasRegistered: aTransaction
 
 	^accounts anySatisfy: [ :anAccount | anAccount hasRegistered: aTransaction ]! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:04:09'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/30/2021 15:26:52'!
+netTransfer
+
+	| netTransferAccumulated |
+	netTransferAccumulated := 0 * peso.
+	accounts do: [ :anAccount |
+		netTransferAccumulated := netTransferAccumulated + anAccount netTransfer.
+	].
+
+	^ netTransferAccumulated! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:59:35'!
 summary
-	| accountsSummary|
-	
+	| accountsSummary balance balanceValueString |
+
 	accounts ifEmpty:[^OrderedCollection with: 'Balance = 0 pesos'].
-	
+
 	accountsSummary := OrderedCollection new.
 	accounts do: [ :anAccount | accountsSummary addAll: anAccount transactionsSummary ].
-	accountsSummary add: ('Balance = ' append: self balance printString).
+
+	balance := self balance.
+	balanceValueString := balance value amount printString append: (' ' append: (balance value unit nameFor: balance value amount)).
+	accountsSummary add: ('Balance = ' append: balanceValueString).
+
 	^ accountsSummary.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:38:32'!
@@ -762,21 +829,36 @@ hasRegistered: aTransaction
 	^ transactions includes: aTransaction 
 ! !
 
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 15:13:45'!
+netTransfer
+
+	| netTransferAccumulated |
+	netTransferAccumulated := 0 * peso.
+	
+	transactions do: [ :aTransaction |
+		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [ netTransferAccumulated := netTransferAccumulated + aTransaction value ].
+		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [ netTransferAccumulated := netTransferAccumulated - aTransaction value ].
+	].
+
+	^ netTransferAccumulated! !
+
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
 
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:02:25'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:56:23'!
 summary
 	
-	| accountSummary |
+	| accountSummary balance balanceValueString |
 	
 	accountSummary :=  OrderedCollection new.
 	
 	accountSummary addAll: self transactionsSummary.
-	accountSummary add: ('Balance = ' append: self balance printString).
+	balance := self balance.
+	balanceValueString := balance value amount printString append: (' ' append: (balance value unit nameFor: balance value amount)).
+	accountSummary add: ('Balance = ' append: balanceValueString).
 
 	^ accountSummary! !
 
@@ -785,18 +867,19 @@ transactions
 
 	^ transactions copy! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:01:10'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:54:24'!
 transactionsSummary
 	
-	| accountTransactionsSummary |
+	| accountTransactionsSummary transactionValueString |
 	
 	accountTransactionsSummary :=  OrderedCollection new.
 	
 	transactions do: [ :aTransaction |
-		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ' append: aTransaction value printString) ].
-		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ' append: aTransaction value printString) ].
-		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ' append: aTransaction value printString)].
-		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ' append: aTransaction value printString)].
+		transactionValueString := aTransaction value amount printString append: (' ' append: (aTransaction value unit nameFor: aTransaction value amount)).
+		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ' append: transactionValueString) ].
+		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ' append: transactionValueString) ].
+		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ' append: transactionValueString)].
+		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ' append: transactionValueString)].
 	].
 
 	^accountTransactionsSummary .! !
