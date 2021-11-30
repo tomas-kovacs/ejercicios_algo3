@@ -210,10 +210,63 @@ test15PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 			self assert: Portfolio canNotAddAccountErrorMessage equals: anError messageText.
 			self assert: portfolioToModify accountsIsEmpty ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:41:07'!
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:34:39'!
 test16APortfolioWithoutTransactionsHasAnEmptySummary
 
-	self assert: Portfolio new summary equals: OrderedCollection new! !
+	self assert: (OrderedCollection with: 'Balance = 0 pesos') equals: Portfolio new summary.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:07:38'!
+test17APortfolioWithAnAccountHasTheAccountTransactionsInItsSummary
+	
+	| aPortfolio anAccount|
+	
+	anAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount.
+	Deposit register: 100 * peso on: anAccount. 
+
+	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: aPortfolio summary.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:08:10'!
+test18APortfolioWithMultipleAccountsHasTheAccountsTransactionsInItsSummary
+	
+	| aPortfolio  anAccount anotherAccount expectedSummary|
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount with: anotherAccount .
+
+	Deposit register: 100 * peso on: anAccount. 
+	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
+
+	expectedSummary := OrderedCollection new.
+	expectedSummary add: 'Depósito por 100 pesos'.
+	expectedSummary add: 'Salida por transferencia de 200 pesos'.
+	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
+	expectedSummary add: 'Balance = 100 pesos'.
+
+	self assert: expectedSummary equals: aPortfolio summary.! !
+
+!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:09:37'!
+test19APortfolioWithAnAccountAndAPortfolioWithAnotherAccountHasEveryAccountSummaryInItsSummary
+	
+	| aPortfolio anotherPortfolio anAccount anotherAccount expectedSummary|
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount.
+	anotherPortfolio := Portfolio with: anotherAccount.
+	Deposit register: 100 * peso on: anAccount. 
+	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
+	
+	aPortfolio add: anotherPortfolio .
+	
+	expectedSummary := OrderedCollection new.
+	expectedSummary add: 'Depósito por 100 pesos'.
+	expectedSummary add: 'Salida por transferencia de 200 pesos'.
+	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
+	expectedSummary add: 'Balance = 100 pesos'.
+
+	self assert: expectedSummary equals: aPortfolio summary.! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Parte2'!
@@ -306,12 +359,12 @@ test07AccountKnowsItsTransactions
 	self assert: (account transactions includes: deposit).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:38:57'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:25:37'!
 test08AReceptiveAccountWithoutTransactionsHasAnEmptySummary
 
-	self assert: ReceptiveAccount new summary equals: OrderedCollection new! !
+	self assert: ReceptiveAccount new summary equals: (OrderedCollection with: 'Balance = 0 pesos').! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:40:24'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:30:53'!
 test09AReceptiveAccountWithOneDepositHasTheDepositInTheSummary
 
 	| anAccount |
@@ -319,9 +372,9 @@ test09AReceptiveAccountWithOneDepositHasTheDepositInTheSummary
 	anAccount := ReceptiveAccount new.
 	Deposit register: 100 * peso on: anAccount.
 
-	self assert: (OrderedCollection with: 'Depósito por 100 pesos') equals: anAccount summary! !
+	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: anAccount summary! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:40:46'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:32:10'!
 test10AReceptiveAccountWithMultipleDepositsHasTheDepositsInTheSummary
 
 	| anAccount |
@@ -330,9 +383,9 @@ test10AReceptiveAccountWithMultipleDepositsHasTheDepositsInTheSummary
 	Deposit register: 10 * peso on: anAccount.
 	Deposit register: 20 * peso on: anAccount.
 
-	self assert: (OrderedCollection with: 'Depósito por 10 pesos' with: 'Depósito por 20 pesos') equals: anAccount summary! !
+	self assert: (OrderedCollection with: 'Depósito por 10 pesos' with: 'Depósito por 20 pesos' with: 'Balance = 30 pesos') equals: anAccount summary! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:42:39'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:32:25'!
 test11AReceptiveAccountWithOneWithdrawHasTheWithdrawInTheSummary
 
 	| anAccount |
@@ -340,9 +393,9 @@ test11AReceptiveAccountWithOneWithdrawHasTheWithdrawInTheSummary
 	anAccount := ReceptiveAccount new.
 	Withdraw register: 10 * peso on: anAccount.
 
-	self assert: (OrderedCollection with: 'Extracción por 10 pesos') equals: anAccount summary! !
+	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Balance = -10 pesos') equals: anAccount summary! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/29/2021 21:45:45'!
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:45:38'!
 test12AReceptiveAccountWithMultipleWithdrawsHasTheWithdrawsInTheSummary
 
 	| anAccount |
@@ -351,7 +404,29 @@ test12AReceptiveAccountWithMultipleWithdrawsHasTheWithdrawsInTheSummary
 	Withdraw register: 10 * peso on: anAccount.
 	Withdraw register: 20 * peso on: anAccount.
 
-	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Extracción por 20 pesos') equals: anAccount summary! !
+	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Extracción por 20 pesos' with: 'Balance = -30 pesos') equals: anAccount summary! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:24:33'!
+test13AReceptiveAccountWithATransferAsAnOriginAccountHasTheTransferWithdrawInTheSummary
+
+	| anAccount anotherAccount |
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	Transfer amount: 100*peso from: anAccount to: anotherAccount.
+
+	self assert: (OrderedCollection with: 'Salida por transferencia de 100 pesos' with: 'Balance = -100 pesos') equals: anAccount summary.! !
+
+!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:25:45'!
+test14AReceptiveAccountWithATransferAsADestinationAccountHasTheTransferDepositInTheSummary
+
+	| anAccount anotherAccount |
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	Transfer amount: 100*peso from: anAccount to: anotherAccount.
+
+	self assert: (OrderedCollection with: 'Entrada por transferencia de 100 pesos' with: 'Balance = 100 pesos') equals: anotherAccount summary.! !
 
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Parte2'!
@@ -517,20 +592,26 @@ initialize
 	parents := OrderedCollection new.! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:19:36'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 11:13:38'!
 balance
 	
-	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 ]! !
+	^accounts sum: [ :anAccount | anAccount balance ] ifEmpty: [ 0 * peso ]! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:28:29'!
 hasRegistered: aTransaction
 
 	^accounts anySatisfy: [ :anAccount | anAccount hasRegistered: aTransaction ]! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/29/2021 21:12:22'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:04:09'!
 summary
+	| accountsSummary|
 	
-	^ OrderedCollection new! !
+	accounts ifEmpty:[^OrderedCollection with: 'Balance = 0 pesos'].
+	
+	accountsSummary := OrderedCollection new.
+	accounts do: [ :anAccount | accountsSummary addAll: anAccount transactionsSummary ].
+	accountsSummary add: ('Balance = ' append: self balance printString).
+	^ accountsSummary.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:38:32'!
 transactions
@@ -541,6 +622,16 @@ transactions
 	accounts do: [ :anAccount | anAccount addTransactionsTo: transactions ].
 	
 	^transactions ! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:06:58'!
+transactionsSummary
+
+	| accountsTransactionsSummaries |
+
+	accountsTransactionsSummaries := OrderedCollection new.
+	
+	accounts do: [: anAccount | accountsTransactionsSummaries addAll: anAccount transactionsSummary].
+	^accountsTransactionsSummaries .! !
 
 
 !Portfolio methodsFor: 'accounts management' stamp: 'HAW 5/25/2019 11:49:20'!
@@ -658,11 +749,11 @@ initialize
 	transactions := OrderedCollection new.! !
 
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:24:46'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 10:30:19'!
 balance
 
 	^transactions 
-		inject: 0
+		inject: 0 * peso
 		into: [ :currentBalance :transaction | transaction affectBalance: currentBalance ]! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'NR 10/21/2019 18:55:56'!
@@ -677,24 +768,38 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/29/2021 21:46:14'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:02:25'!
 summary
 	
 	| accountSummary |
 	
 	accountSummary :=  OrderedCollection new.
 	
-	transactions do: [ :aTransaction |
-		(aTransaction isKindOf: Deposit) ifTrue: [ accountSummary add: ('Depósito por ' append: aTransaction value printString) ].
-		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountSummary add: ('Extracción por ' append: aTransaction value printString) ]
-	].
+	accountSummary addAll: self transactionsSummary.
+	accountSummary add: ('Balance = ' append: self balance printString).
 
-	^ accountSummary ! !
+	^ accountSummary! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
 
 	^ transactions copy! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:01:10'!
+transactionsSummary
+	
+	| accountTransactionsSummary |
+	
+	accountTransactionsSummary :=  OrderedCollection new.
+	
+	transactions do: [ :aTransaction |
+		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ' append: aTransaction value printString) ].
+		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ' append: aTransaction value printString) ].
+		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ' append: aTransaction value printString)].
+		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ' append: aTransaction value printString)].
+	].
+
+	^accountTransactionsSummary .! !
 
 
 !ReceptiveAccount methodsFor: 'private' stamp: 'HAW 5/25/2019 11:38:52'!
