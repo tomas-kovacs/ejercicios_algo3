@@ -665,18 +665,16 @@ netTransfer
 
 	^ netTransferAccumulated! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:59:35'!
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:14:24'!
 summary
-	| accountsSummary balance balanceValueString |
+	| accountsSummary |
 
 	accounts ifEmpty:[^OrderedCollection with: 'Balance = 0 pesos'].
 
 	accountsSummary := OrderedCollection new.
 	accounts do: [ :anAccount | accountsSummary addAll: anAccount transactionsSummary ].
 
-	balance := self balance.
-	balanceValueString := balance value amount printString append: (' ' append: (balance value unit nameFor: balance value amount)).
-	accountsSummary add: ('Balance = ' append: balanceValueString).
+	accountsSummary add: ('Balance = ', self balance asString).
 
 	^ accountsSummary.! !
 
@@ -848,17 +846,15 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:56:23'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:16:17'!
 summary
 	
-	| accountSummary balance balanceValueString |
+	| accountSummary |
 	
 	accountSummary :=  OrderedCollection new.
 	
 	accountSummary addAll: self transactionsSummary.
-	balance := self balance.
-	balanceValueString := balance value amount printString append: (' ' append: (balance value unit nameFor: balance value amount)).
-	accountSummary add: ('Balance = ' append: balanceValueString).
+	accountSummary add: ('Balance = ', self balance asString).
 
 	^ accountSummary! !
 
@@ -867,7 +863,7 @@ transactions
 
 	^ transactions copy! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 14:54:24'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:17:11'!
 transactionsSummary
 	
 	| accountTransactionsSummary transactionValueString |
@@ -875,11 +871,11 @@ transactionsSummary
 	accountTransactionsSummary :=  OrderedCollection new.
 	
 	transactions do: [ :aTransaction |
-		transactionValueString := aTransaction value amount printString append: (' ' append: (aTransaction value unit nameFor: aTransaction value amount)).
-		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ' append: transactionValueString) ].
-		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ' append: transactionValueString) ].
-		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ' append: transactionValueString)].
-		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ' append: transactionValueString)].
+		transactionValueString := aTransaction value asString.
+		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ', transactionValueString) ].
+		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ', transactionValueString) ].
+		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ', transactionValueString)].
+		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ', transactionValueString)].
 	].
 
 	^accountTransactionsSummary .! !
