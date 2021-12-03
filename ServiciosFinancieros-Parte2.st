@@ -585,6 +585,33 @@ test06CannotTransferAZeroAmount
 ! !
 
 
+!classDefinition: #XXXXTest category: 'ServiciosFinancieros-Parte2'!
+TestCase subclass: #XXXXTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:26:18'!
+test01
+
+	self assert: OrderedCollection new equals: Portfolio new portfolioTree! !
+
+!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:29:35'!
+test02
+
+	self assert: (OrderedCollection with: 'Test portfolio') equals: (Portfolio named: 'Test portfolio') portfolioTree! !
+
+!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:38:04'!
+test03
+
+	| aPortfolio |
+	
+	aPortfolio := Portfolio named: 'Test portfolio' with: (ReceptiveAccount named: 'Test account').
+
+	self assert: (OrderedCollection with: 'Test portfolio' with: '    Test account') equals: aPortfolio portfolioTree! !
+
+
 !classDefinition: #Account category: 'ServiciosFinancieros-Parte2'!
 Object subclass: #Account
 	instanceVariableNames: ''
@@ -632,16 +659,30 @@ addTransactionsTo: aCollectionOfTransactions
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Parte2'!
 Account subclass: #Portfolio
-	instanceVariableNames: 'accounts parents'
+	instanceVariableNames: 'accounts parents portfolioName receptiveAccount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!Portfolio methodsFor: 'initialization' stamp: 'HAW 5/25/2019 12:03:18'!
+!Portfolio methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:32:58'!
 initialize
 
 	accounts := OrderedCollection new.
 	parents := OrderedCollection new.! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:31:13'!
+initializeWith: aPortfolioName 
+
+	portfolioName := aPortfolioName.
+	accounts := OrderedCollection new.
+	parents := OrderedCollection new.! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:42:02'!
+initializeWith: aPortfolioName with: aReceptiveAccount 
+
+	portfolioName := aPortfolioName.
+	accounts := OrderedCollection with: aReceptiveAccount.
+	parents := OrderedCollection new! !
 
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 11:13:38'!
@@ -658,6 +699,19 @@ hasRegistered: aTransaction
 netTransfer
 
 	^(AccountNetTransfer of: self) compute.! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:46:36'!
+portfolioTree
+	
+	| tree |
+	
+	tree := OrderedCollection new.
+	
+	(portfolioName = nil) ifTrue: [ ^ OrderedCollection new ].
+	tree add: portfolioName.
+	accounts isEmpty ifFalse: [  tree add: '    ', accounts first name ].
+	
+	^ tree! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 12/2/2021 20:58:57'!
 summary
@@ -760,6 +814,16 @@ canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
 
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:30:49'!
+named: aPortfolioName 
+	
+	^ self new initializeWith: aPortfolioName! !
+
+!Portfolio class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:40:47'!
+named: aPortfolioName with: aReceptiveAccount 
+	
+	^ self new initializeWith: aPortfolioName with: aReceptiveAccount! !
+
 !Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:18:21'!
 with: anAccount
 
@@ -778,7 +842,7 @@ with: anAccount with: anotherAccount
 
 !classDefinition: #ReceptiveAccount category: 'ServiciosFinancieros-Parte2'!
 Account subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions'
+	instanceVariableNames: 'transactions receptiveAccountName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
@@ -788,6 +852,11 @@ initialize
 
 	super initialize.
 	transactions := OrderedCollection new.! !
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:39:55'!
+initializeWith: aReceptiveAccountName 
+
+	receptiveAccountName := aReceptiveAccountName.! !
 
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 10:30:19'!
@@ -801,6 +870,12 @@ balance
 hasRegistered: aTransaction
 
 	^ transactions includes: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:44:20'!
+name
+
+	^ receptiveAccountName
 ! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 12/2/2021 21:32:33'!
@@ -842,6 +917,17 @@ isComposedBy: anAccount
 
 	^self = anAccount ! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ReceptiveAccount class' category: 'ServiciosFinancieros-Parte2'!
+ReceptiveAccount class
+	instanceVariableNames: ''!
+
+!ReceptiveAccount class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:39:43'!
+named: aReceptiveAccountName
+
+	^ self new initializeWith: aReceptiveAccountName! !
+
 
 !classDefinition: #AccountNetTransfer category: 'ServiciosFinancieros-Parte2'!
 Object subclass: #AccountNetTransfer
@@ -850,13 +936,9 @@ Object subclass: #AccountNetTransfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:19:23'!
-addToNetTransferTheTransferValue: aTransferValue
-	netTransfer := netTransfer + aTransferValue! !
-
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:42'!
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:10:38'!
 compute
-	account transactions do: [ :aTransaction | aTransaction beRegisteredBy: self	].
+	account transactions do: [ :aTransaction | aTransaction accept: self	].
 	^netTransfer.! !
 
 !AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:04:05'!
@@ -864,9 +946,15 @@ initializeWith: anAccount
 	account := anAccount.
 	netTransfer := 0 * peso! !
 
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:19:34'!
-substractFromNetTransferTheTransferValue: aTransferValue
-	netTransfer := netTransfer - aTransferValue! !
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:09:25'!
+visitTransferDepositLeg: aDeposit
+
+	netTransfer := netTransfer + aDeposit value! !
+
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:09:19'!
+visitTransferWithdrawLeg: aTransferWithdrawLeg
+
+	netTransfer := netTransfer - aTransferWithdrawLeg value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -887,25 +975,9 @@ Object subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:06:00'!
-addDepositToSummary: transactionValue
-	summary add: ('Depósito por ', transactionValue)! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:10:44'!
-addTransferDepositLegToSummary: transactionValue
-	 summary add: ('Entrada por transferencia de ', transactionValue)! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:09:56'!
-addTransferWithdrawLegToSummary: transactionValue
-	 summary add: ('Salida por transferencia de ', transactionValue)! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:08:32'!
-addWithdrawToSummary: transactionValue
-	summary add: ('Extracción por ', transactionValue)! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:54'!
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:18:02'!
 compute
-	self transactionsSummary.
+	account transactions do: [ :aTransaction | aTransaction accept: self	].
 	summary add: ('Balance = ', account balance asString).
 	^ summary
 	! !
@@ -916,9 +988,25 @@ initializeWith: anAccount
 	account := anAccount
 	! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:18:01'!
-transactionsSummary	
-	account transactions do: [ :aTransaction | aTransaction beSummarizedBy: self].! !
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:07:47'!
+visitDeposit: aDeposit
+
+	summary add: ('Depósito por ', aDeposit value asString)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:21'!
+visitTransferDepositLeg: aDepositLeg
+
+	summary add: ('Entrada por transferencia de ', aDepositLeg value asString)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:03:56'!
+visitTransferWithdrawLeg: aWithdrawLeg
+
+	summary add: ('Salida por transferencia de ', aWithdrawLeg value asString)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:17:06'!
+visitWithdraw: aWithdraw
+
+	summary add: ('Extracción por ', aWithdraw value asString)! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -950,10 +1038,10 @@ affectBalance: aBalance
 	self subclassResponsibility ! !
 
 
-!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:12:21'!
-beSummarizedBy: anAccountSummary
-	self subclassResponsibility .
-	! !
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:01:32'!
+accept: anExpressionVisitor
+
+	self subclassResponsibility! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Parte2'!
@@ -981,9 +1069,10 @@ affectBalance: aBalance
 	^aBalance + value ! !
 
 
-!Deposit methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:04'!
-beSummarizedBy: anAccountSummary
-	anAccountSummary addDepositToSummary: self value asString.! !
+!Deposit methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:06:51'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitDeposit: self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1062,13 +1151,10 @@ affectBalance: aBalance
 	^aBalance + self value! !
 
 
-!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 13:38:38'!
-beRegisteredBy: anAccountNetTransfer
-	anAccountNetTransfer addToNetTransferTheTransferValue: self value.! !
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:21'!
+accept: anExpressionVisitor
 
-!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:39'!
-beSummarizedBy: anAccountSummary
-	anAccountSummary addTransferDepositLegToSummary: self value asString.! !
+	anExpressionVisitor visitTransferDepositLeg: self! !
 
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Parte2'!
@@ -1090,13 +1176,10 @@ affectBalance: aBalance
 	^aBalance - self value! !
 
 
-!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 13:38:55'!
-beRegisteredBy: anAccountNetTransfer
-	anAccountNetTransfer substractFromNetTransferTheTransferValue: self value.! !
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:47'!
+accept: anExpressionVisitor
 
-!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:14:09'!
-beSummarizedBy: anAccountSummary
-	anAccountSummary addTransferWithdrawLegToSummary: self value asString.! !
+	anExpressionVisitor visitTransferWithdrawLeg: self! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Parte2'!
@@ -1124,9 +1207,10 @@ affectBalance: aBalance
 	^aBalance - value! !
 
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:26'!
-beSummarizedBy: anAccountSummary
-	anAccountSummary addWithdrawToSummary: self value asString.! !
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:16:19'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitWithdraw: self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
