@@ -1062,9 +1062,9 @@ affectBalance: aBalance
 	^aBalance + self value! !
 
 
-!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:09:15'!
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 13:38:38'!
 beRegisteredBy: anAccountNetTransfer
-	anAccountNetTransfer addTransferValue: self value.! !
+	anAccountNetTransfer addToNetTransferTheTransferValue: self value.! !
 
 !TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:39'!
 beSummarizedBy: anAccountSummary
@@ -1090,9 +1090,9 @@ affectBalance: aBalance
 	^aBalance - self value! !
 
 
-!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:09:41'!
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 13:38:55'!
 beRegisteredBy: anAccountNetTransfer
-	anAccountNetTransfer substractTransferValue: self value.! !
+	anAccountNetTransfer substractFromNetTransferTheTransferValue: self value.! !
 
 !TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:14:09'!
 beSummarizedBy: anAccountSummary
