@@ -654,16 +654,10 @@ hasRegistered: aTransaction
 
 	^accounts anySatisfy: [ :anAccount | anAccount hasRegistered: aTransaction ]! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 11/30/2021 15:26:52'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/2/2021 21:34:28'!
 netTransfer
 
-	| netTransferAccumulated |
-	netTransferAccumulated := 0 * peso.
-	accounts do: [ :anAccount |
-		netTransferAccumulated := netTransferAccumulated + anAccount netTransfer.
-	].
-
-	^ netTransferAccumulated! !
+	^(AccountNetTransfer of: self) compute.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 12/2/2021 20:58:57'!
 summary
@@ -809,18 +803,11 @@ hasRegistered: aTransaction
 	^ transactions includes: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 11/30/2021 15:13:45'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 12/2/2021 21:32:33'!
 netTransfer
 
-	| netTransferAccumulated |
-	netTransferAccumulated := 0 * peso.
-	
-	transactions do: [ :aTransaction |
-		(aTransaction isKindOf: TransferDepositLeg) ifTrue: [ netTransferAccumulated := netTransferAccumulated + aTransaction value ].
-		(aTransaction isKindOf: TransferWithdrawLeg) ifTrue: [ netTransferAccumulated := netTransferAccumulated - aTransaction value ].
-	].
-
-	^ netTransferAccumulated! !
+ 	^(AccountNetTransfer of: self) compute.
+! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 register: aTransaction
@@ -856,6 +843,43 @@ isComposedBy: anAccount
 	^self = anAccount ! !
 
 
+!classDefinition: #AccountNetTransfer category: 'ServiciosFinancieros-Parte2'!
+Object subclass: #AccountNetTransfer
+	instanceVariableNames: 'account netTransfer'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:19:23'!
+addToNetTransferTheTransferValue: aTransferValue
+	netTransfer := netTransfer + aTransferValue! !
+
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:42'!
+compute
+	account transactions do: [ :aTransaction | aTransaction beRegisteredBy: self	].
+	^netTransfer.! !
+
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:04:05'!
+initializeWith: anAccount
+	account := anAccount.
+	netTransfer := 0 * peso! !
+
+!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:19:34'!
+substractFromNetTransferTheTransferValue: aTransferValue
+	netTransfer := netTransfer - aTransferValue! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountNetTransfer class' category: 'ServiciosFinancieros-Parte2'!
+AccountNetTransfer class
+	instanceVariableNames: ''!
+
+!AccountNetTransfer class methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:28:27'!
+of: anAccount
+	^self new initializeWith: anAccount
+	! !
+
+
 !classDefinition: #AccountSummary category: 'ServiciosFinancieros-Parte2'!
 Object subclass: #AccountSummary
 	instanceVariableNames: 'account summary'
@@ -879,25 +903,21 @@ addTransferWithdrawLegToSummary: transactionValue
 addWithdrawToSummary: transactionValue
 	summary add: ('Extracción por ', transactionValue)! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:23:46'!
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:54'!
 compute
-
 	self transactionsSummary.
 	summary add: ('Balance = ', account balance asString).
-
 	^ summary
 	! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 20:51:17'!
-initializeWith: anAccount
-	
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:57'!
+initializeWith: anAccount	
 	summary := OrderedCollection new.
 	account := anAccount
 	! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:15:15'!
-transactionsSummary
-	
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:18:01'!
+transactionsSummary	
 	account transactions do: [ :aTransaction | aTransaction beSummarizedBy: self].! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -1042,6 +1062,10 @@ affectBalance: aBalance
 	^aBalance + self value! !
 
 
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:09:15'!
+beRegisteredBy: anAccountNetTransfer
+	anAccountNetTransfer addTransferValue: self value.! !
+
 !TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:39'!
 beSummarizedBy: anAccountSummary
 	anAccountSummary addTransferDepositLegToSummary: self value asString.! !
@@ -1065,6 +1089,10 @@ affectBalance: aBalance
 
 	^aBalance - self value! !
 
+
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:09:41'!
+beRegisteredBy: anAccountNetTransfer
+	anAccountNetTransfer substractTransferValue: self value.! !
 
 !TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:14:09'!
 beSummarizedBy: anAccountSummary
