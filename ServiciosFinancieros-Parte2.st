@@ -665,18 +665,10 @@ netTransfer
 
 	^ netTransferAccumulated! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:14:24'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/2/2021 20:58:57'!
 summary
-	| accountsSummary |
-
-	accounts ifEmpty:[^OrderedCollection with: 'Balance = 0 pesos'].
-
-	accountsSummary := OrderedCollection new.
-	accounts do: [ :anAccount | accountsSummary addAll: anAccount transactionsSummary ].
-
-	accountsSummary add: ('Balance = ', self balance asString).
-
-	^ accountsSummary.! !
+	
+	^ (AccountSummary of: self) compute.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:38:32'!
 transactions
@@ -687,16 +679,6 @@ transactions
 	accounts do: [ :anAccount | anAccount addTransactionsTo: transactions ].
 	
 	^transactions ! !
-
-!Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 12:06:58'!
-transactionsSummary
-
-	| accountsTransactionsSummaries |
-
-	accountsTransactionsSummaries := OrderedCollection new.
-	
-	accounts do: [: anAccount | accountsTransactionsSummaries addAll: anAccount transactionsSummary].
-	^accountsTransactionsSummaries .! !
 
 
 !Portfolio methodsFor: 'accounts management' stamp: 'HAW 5/25/2019 11:49:20'!
@@ -846,39 +828,15 @@ register: aTransaction
 	transactions add: aTransaction 
 ! !
 
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:16:17'!
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 12/2/2021 20:54:57'!
 summary
 	
-	| accountSummary |
-	
-	accountSummary :=  OrderedCollection new.
-	
-	accountSummary addAll: self transactionsSummary.
-	accountSummary add: ('Balance = ', self balance asString).
-
-	^ accountSummary! !
+	^ (AccountSummary of: self) compute.! !
 
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:37'!
 transactions 
 
 	^ transactions copy! !
-
-!ReceptiveAccount methodsFor: 'main protocol' stamp: 'TK 12/2/2021 20:17:11'!
-transactionsSummary
-	
-	| accountTransactionsSummary transactionValueString |
-	
-	accountTransactionsSummary :=  OrderedCollection new.
-	
-	transactions do: [ :aTransaction |
-		transactionValueString := aTransaction value asString.
-		(aTransaction isKindOf: Deposit) ifTrue: [ accountTransactionsSummary add: ('Depósito por ', transactionValueString) ].
-		(aTransaction isKindOf: Withdraw ) ifTrue: [ accountTransactionsSummary add: ('Extracción por ', transactionValueString) ].
-		(aTransaction isKindOf: TransferWithdrawLeg ) ifTrue: [ accountTransactionsSummary add: ('Salida por transferencia de ', transactionValueString)].
-		(aTransaction isKindOf: TransferDepositLeg ) ifTrue: [ accountTransactionsSummary add: ('Entrada por transferencia de ', transactionValueString)].
-	].
-
-	^accountTransactionsSummary .! !
 
 
 !ReceptiveAccount methodsFor: 'private' stamp: 'HAW 5/25/2019 11:38:52'!
@@ -898,6 +856,61 @@ isComposedBy: anAccount
 	^self = anAccount ! !
 
 
+!classDefinition: #AccountSummary category: 'ServiciosFinancieros-Parte2'!
+Object subclass: #AccountSummary
+	instanceVariableNames: 'account summary'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:06:00'!
+addDepositToSummary: transactionValue
+	summary add: ('Depósito por ', transactionValue)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:10:44'!
+addTransferDepositLegToSummary: transactionValue
+	 summary add: ('Entrada por transferencia de ', transactionValue)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:09:56'!
+addTransferWithdrawLegToSummary: transactionValue
+	 summary add: ('Salida por transferencia de ', transactionValue)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:08:32'!
+addWithdrawToSummary: transactionValue
+	summary add: ('Extracción por ', transactionValue)! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:23:46'!
+compute
+
+	self transactionsSummary.
+	summary add: ('Balance = ', account balance asString).
+
+	^ summary
+	! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 20:51:17'!
+initializeWith: anAccount
+	
+	summary := OrderedCollection new.
+	account := anAccount
+	! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:15:15'!
+transactionsSummary
+	
+	account transactions do: [ :aTransaction | aTransaction beSummarizedBy: self].! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'AccountSummary class' category: 'ServiciosFinancieros-Parte2'!
+AccountSummary class
+	instanceVariableNames: ''!
+
+!AccountSummary class methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 20:47:29'!
+of: anAccount
+	^self new initializeWith: anAccount! !
+
+
 !classDefinition: #AccountTransaction category: 'ServiciosFinancieros-Parte2'!
 Object subclass: #AccountTransaction
 	instanceVariableNames: ''
@@ -915,6 +928,12 @@ value
 affectBalance: aBalance
 
 	self subclassResponsibility ! !
+
+
+!AccountTransaction methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:12:21'!
+beSummarizedBy: anAccountSummary
+	self subclassResponsibility .
+	! !
 
 
 !classDefinition: #Deposit category: 'ServiciosFinancieros-Parte2'!
@@ -940,6 +959,11 @@ value
 affectBalance: aBalance
 
 	^aBalance + value ! !
+
+
+!Deposit methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:04'!
+beSummarizedBy: anAccountSummary
+	anAccountSummary addDepositToSummary: self value asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1017,6 +1041,11 @@ affectBalance: aBalance
 
 	^aBalance + self value! !
 
+
+!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:39'!
+beSummarizedBy: anAccountSummary
+	anAccountSummary addTransferDepositLegToSummary: self value asString.! !
+
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Parte2'!
 TransferLeg subclass: #TransferWithdrawLeg
@@ -1035,6 +1064,11 @@ depositLeg
 affectBalance: aBalance
 
 	^aBalance - self value! !
+
+
+!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:14:09'!
+beSummarizedBy: anAccountSummary
+	anAccountSummary addTransferWithdrawLegToSummary: self value asString.! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Parte2'!
@@ -1060,6 +1094,11 @@ value
 affectBalance: aBalance
 
 	^aBalance - value! !
+
+
+!Withdraw methodsFor: 'as yet unclassified' stamp: 'MW 12/2/2021 21:13:26'!
+beSummarizedBy: anAccountSummary
+	anAccountSummary addWithdrawToSummary: self value asString.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
