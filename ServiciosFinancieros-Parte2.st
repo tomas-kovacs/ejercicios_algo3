@@ -1,3 +1,198 @@
+!classDefinition: #AccountNetTransferTest category: 'ServiciosFinancieros-Parte2'!
+TestCase subclass: #AccountNetTransferTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!AccountNetTransferTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:39:35'!
+test01AReceptiveAccountWithNoTransfersHasNetTransferZero
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	
+	self assert: 0 * peso equals: anAccount netTransfer! !
+
+!AccountNetTransferTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:39:42'!
+test02AReceptiveAccountWithATransferAsAnOriginAccountHasNegativeNetTransfer
+
+	| anOriginAccount aDestinationAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aDestinationAccount := ReceptiveAccount new.
+	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
+
+	self assert: -100 * peso equals: anOriginAccount netTransfer! !
+
+!AccountNetTransferTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:39:49'!
+test03AReceptiveAccountWithATransferAsADestinationAccountHasPositiveNetTransfer
+
+	| anOriginAccount aDestinationAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aDestinationAccount := ReceptiveAccount new.
+	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
+
+	self assert: 100 * peso equals: aDestinationAccount netTransfer! !
+
+!AccountNetTransferTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:39:56'!
+test04APortfolioWithoutAccountsHasZeroNetTransfer
+	
+	| aPortfolio |
+
+	aPortfolio := Portfolio new.
+	
+	self assert: 0 * peso equals: aPortfolio netTransfer! !
+
+!AccountNetTransferTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:02'!
+test05APortfolioWithAccountsWithTransfersHasTheRightNetTransfer
+	
+	| aPortfolio anOriginAccount |
+	
+	anOriginAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anOriginAccount.
+	
+	Transfer amount: 100 * peso from: anOriginAccount to: ReceptiveAccount new.
+	
+	self assert: -100 * peso equals: aPortfolio netTransfer! !
+
+
+!classDefinition: #AccountSummaryTest category: 'ServiciosFinancieros-Parte2'!
+TestCase subclass: #AccountSummaryTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:09'!
+test01AReceptiveAccountWithoutTransactionsHasAnEmptySummary
+
+	self assert: ReceptiveAccount new summary equals: (OrderedCollection with: 'Balance = 0 pesos').! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:17'!
+test02AReceptiveAccountWithOneDepositHasTheDepositInTheSummary
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	Deposit register: 100 * peso on: anAccount.
+
+	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: anAccount summary! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:27'!
+test03AReceptiveAccountWithMultipleDepositsHasTheDepositsInTheSummary
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	Deposit register: 10 * peso on: anAccount.
+	Deposit register: 20 * peso on: anAccount.
+
+	self assert: (OrderedCollection with: 'Depósito por 10 pesos' with: 'Depósito por 20 pesos' with: 'Balance = 30 pesos') equals: anAccount summary! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:35'!
+test04AReceptiveAccountWithOneWithdrawHasTheWithdrawInTheSummary
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	Withdraw register: 10 * peso on: anAccount.
+
+	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Balance = -10 pesos') equals: anAccount summary! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:42'!
+test05AReceptiveAccountWithMultipleWithdrawsHasTheWithdrawsInTheSummary
+
+	| anAccount |
+	
+	anAccount := ReceptiveAccount new.
+	Withdraw register: 10 * peso on: anAccount.
+	Withdraw register: 20 * peso on: anAccount.
+
+	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Extracción por 20 pesos' with: 'Balance = -30 pesos') equals: anAccount summary! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:49'!
+test06AReceptiveAccountWithATransferAsAnOriginAccountHasTheTransferWithdrawInTheSummary
+
+	| anAccount anotherAccount |
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	Transfer amount: 100*peso from: anAccount to: anotherAccount.
+
+	self assert: (OrderedCollection with: 'Salida por transferencia de 100 pesos' with: 'Balance = -100 pesos') equals: anAccount summary.! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:40:57'!
+test07AReceptiveAccountWithATransferAsADestinationAccountHasTheTransferDepositInTheSummary
+
+	| anAccount anotherAccount |
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	Transfer amount: 100*peso from: anAccount to: anotherAccount.
+
+	self assert: (OrderedCollection with: 'Entrada por transferencia de 100 pesos' with: 'Balance = 100 pesos') equals: anotherAccount summary.! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:41:04'!
+test08APortfolioWithoutTransactionsHasAnEmptySummary
+
+	self assert: (OrderedCollection with: 'Balance = 0 pesos') equals: Portfolio new summary.! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:41:10'!
+test09APortfolioWithAnAccountHasTheAccountTransactionsInItsSummary
+	
+	| aPortfolio anAccount|
+	
+	anAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount.
+	Deposit register: 100 * peso on: anAccount. 
+
+	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: aPortfolio summary.! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:41:16'!
+test10APortfolioWithMultipleAccountsHasTheAccountsTransactionsInItsSummary
+	
+	| aPortfolio  anAccount anotherAccount expectedSummary|
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount with: anotherAccount .
+
+	Deposit register: 100 * peso on: anAccount. 
+	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
+
+	expectedSummary := OrderedCollection new.
+	expectedSummary add: 'Depósito por 100 pesos'.
+	expectedSummary add: 'Salida por transferencia de 200 pesos'.
+	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
+	expectedSummary add: 'Balance = 100 pesos'.
+
+	self assert: expectedSummary equals: aPortfolio summary.! !
+
+!AccountSummaryTest methodsFor: 'tests' stamp: 'MW 12/4/2021 12:41:22'!
+test11APortfolioWithAnAccountAndAPortfolioWithAnotherAccountHasEveryAccountSummaryInItsSummary
+	
+	| aPortfolio anotherPortfolio anAccount anotherAccount expectedSummary|
+	
+	anAccount := ReceptiveAccount new.
+	anotherAccount := ReceptiveAccount new.
+	aPortfolio := Portfolio with: anAccount.
+	anotherPortfolio := Portfolio with: anotherAccount.
+	Deposit register: 100 * peso on: anAccount. 
+	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
+	
+	aPortfolio add: anotherPortfolio .
+	
+	expectedSummary := OrderedCollection new.
+	expectedSummary add: 'Depósito por 100 pesos'.
+	expectedSummary add: 'Salida por transferencia de 200 pesos'.
+	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
+	expectedSummary add: 'Balance = 100 pesos'.
+
+	self assert: expectedSummary equals: aPortfolio summary.! !
+
+
 !classDefinition: #PortfolioTest category: 'ServiciosFinancieros-Parte2'!
 TestCase subclass: #PortfolioTest
 	instanceVariableNames: ''
@@ -210,84 +405,57 @@ test15PortfolioCanNotIncludeAnyOfTheComposedAccountOfPortfolioToAdd
 			self assert: Portfolio canNotAddAccountErrorMessage equals: anError messageText.
 			self assert: portfolioToModify accountsIsEmpty ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:34:39'!
-test16APortfolioWithoutTransactionsHasAnEmptySummary
+
+!classDefinition: #PortfolioTreeTest category: 'ServiciosFinancieros-Parte2'!
+TestCase subclass: #PortfolioTreeTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
 
-	self assert: (OrderedCollection with: 'Balance = 0 pesos') equals: Portfolio new summary.! !
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:05:05'!
+test01ANamelessPortfolioHasAnEmptyPortfolioTree
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:07:38'!
-test17APortfolioWithAnAccountHasTheAccountTransactionsInItsSummary
-	
-	| aPortfolio anAccount|
-	
-	anAccount := ReceptiveAccount new.
-	aPortfolio := Portfolio with: anAccount.
-	Deposit register: 100 * peso on: anAccount. 
+	self assert: OrderedCollection new equals: Portfolio new portfolioTree! !
 
-	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: aPortfolio summary.! !
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:11:32'!
+test02APortfolioWithoutAnyChildHasAPortfolioTreeOnlyWithItsName
 
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:08:10'!
-test18APortfolioWithMultipleAccountsHasTheAccountsTransactionsInItsSummary
-	
-	| aPortfolio  anAccount anotherAccount expectedSummary|
-	
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
-	aPortfolio := Portfolio with: anAccount with: anotherAccount .
+	self assert: (OrderedCollection with: 'Test portfolio') equals: (Portfolio named: 'Test portfolio') portfolioTree! !
 
-	Deposit register: 100 * peso on: anAccount. 
-	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:10:08'!
+test03APortfolioWithAChildReceptiveAccountHasTheCorrectPortfolioTree
 
-	expectedSummary := OrderedCollection new.
-	expectedSummary add: 'Depósito por 100 pesos'.
-	expectedSummary add: 'Salida por transferencia de 200 pesos'.
-	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
-	expectedSummary add: 'Balance = 100 pesos'.
-
-	self assert: expectedSummary equals: aPortfolio summary.! !
-
-!PortfolioTest methodsFor: 'tests' stamp: 'MW 11/30/2021 12:09:37'!
-test19APortfolioWithAnAccountAndAPortfolioWithAnotherAccountHasEveryAccountSummaryInItsSummary
-	
-	| aPortfolio anotherPortfolio anAccount anotherAccount expectedSummary|
-	
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
-	aPortfolio := Portfolio with: anAccount.
-	anotherPortfolio := Portfolio with: anotherAccount.
-	Deposit register: 100 * peso on: anAccount. 
-	Transfer amount: 200 *peso from: anAccount to: anotherAccount.
-	
-	aPortfolio add: anotherPortfolio .
-	
-	expectedSummary := OrderedCollection new.
-	expectedSummary add: 'Depósito por 100 pesos'.
-	expectedSummary add: 'Salida por transferencia de 200 pesos'.
-	expectedSummary add: 'Entrada por transferencia de 200 pesos'.
-	expectedSummary add: 'Balance = 100 pesos'.
-
-	self assert: expectedSummary equals: aPortfolio summary.! !
-
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:28:02'!
-test20APortfolioWithoutAccountsHasZeroNetTransfer
-	
 	| aPortfolio |
+	
+	aPortfolio := Portfolio named: 'Test portfolio' with: (ReceptiveAccount named: 'Test account').
 
-	aPortfolio := Portfolio new.
-	
-	self assert: 0 * peso equals: aPortfolio netTransfer! !
+	self assert: (OrderedCollection with: 'Test portfolio' with: '    Test account') equals: aPortfolio portfolioTree! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:28:43'!
-test21APortfolioWithAccountsWithTransfersHasTheRightNetTransfer
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:11:07'!
+test04APortfolioWithMultipleChildReceptiveAccountsHasTheCorrectPortfolioTree
+
+	| aPortfolio |
 	
-	| aPortfolio anOriginAccount |
+	aPortfolio := Portfolio named: 'Test portfolio' with: (ReceptiveAccount named: 'Test account') with: (ReceptiveAccount named: 'Another test account').
+
+	self assert: (OrderedCollection with: 'Test portfolio' with: '    Test account' with: '    Another test account') equals: aPortfolio portfolioTree! !
+
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:10:00'!
+test05APortfolioWithAChildPortfolioHasTheCorrectPortfolioTree
+
+	| aPortfolio |
 	
-	anOriginAccount := ReceptiveAccount new.
-	aPortfolio := Portfolio with: anOriginAccount.
+	aPortfolio := Portfolio named: 'Test portfolio' with: (Portfolio named: 'Child test portfolio').
+	self assert: (OrderedCollection with: 'Test portfolio' with: '    Child test portfolio') equals: aPortfolio portfolioTree! !
+
+!PortfolioTreeTest methodsFor: 'tests' stamp: 'MW 12/4/2021 20:10:46'!
+test06APortfoliowithAChildPortfolioThatHasAChildReceptiveAccountHasTheCorrectPortfolioTree
+
+	| aPortfolio |
 	
-	Transfer amount: 100 * peso from: anOriginAccount to: ReceptiveAccount new.
-	
-	self assert: -100 * peso equals: aPortfolio netTransfer! !
+	aPortfolio := Portfolio named: 'Test portfolio' with: (Portfolio named: 'Child test portfolio' with: (ReceptiveAccount named: 'Child test account')).
+	self assert: (OrderedCollection with: 'Test portfolio' with: '    Child test portfolio' with: '        Child test account') equals: aPortfolio portfolioTree! !
 
 
 !classDefinition: #ReceptiveAccountTest category: 'ServiciosFinancieros-Parte2'!
@@ -380,106 +548,6 @@ test07AccountKnowsItsTransactions
 	self assert: (account transactions includes: deposit).
 ! !
 
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:25:37'!
-test08AReceptiveAccountWithoutTransactionsHasAnEmptySummary
-
-	self assert: ReceptiveAccount new summary equals: (OrderedCollection with: 'Balance = 0 pesos').! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:30:53'!
-test09AReceptiveAccountWithOneDepositHasTheDepositInTheSummary
-
-	| anAccount |
-	
-	anAccount := ReceptiveAccount new.
-	Deposit register: 100 * peso on: anAccount.
-
-	self assert: (OrderedCollection with: 'Depósito por 100 pesos' with: 'Balance = 100 pesos') equals: anAccount summary! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:32:10'!
-test10AReceptiveAccountWithMultipleDepositsHasTheDepositsInTheSummary
-
-	| anAccount |
-	
-	anAccount := ReceptiveAccount new.
-	Deposit register: 10 * peso on: anAccount.
-	Deposit register: 20 * peso on: anAccount.
-
-	self assert: (OrderedCollection with: 'Depósito por 10 pesos' with: 'Depósito por 20 pesos' with: 'Balance = 30 pesos') equals: anAccount summary! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:32:25'!
-test11AReceptiveAccountWithOneWithdrawHasTheWithdrawInTheSummary
-
-	| anAccount |
-	
-	anAccount := ReceptiveAccount new.
-	Withdraw register: 10 * peso on: anAccount.
-
-	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Balance = -10 pesos') equals: anAccount summary! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 10:45:38'!
-test12AReceptiveAccountWithMultipleWithdrawsHasTheWithdrawsInTheSummary
-
-	| anAccount |
-	
-	anAccount := ReceptiveAccount new.
-	Withdraw register: 10 * peso on: anAccount.
-	Withdraw register: 20 * peso on: anAccount.
-
-	self assert: (OrderedCollection with: 'Extracción por 10 pesos' with: 'Extracción por 20 pesos' with: 'Balance = -30 pesos') equals: anAccount summary! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:24:33'!
-test13AReceptiveAccountWithATransferAsAnOriginAccountHasTheTransferWithdrawInTheSummary
-
-	| anAccount anotherAccount |
-	
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
-	Transfer amount: 100*peso from: anAccount to: anotherAccount.
-
-	self assert: (OrderedCollection with: 'Salida por transferencia de 100 pesos' with: 'Balance = -100 pesos') equals: anAccount summary.! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'MW 11/30/2021 11:25:45'!
-test14AReceptiveAccountWithATransferAsADestinationAccountHasTheTransferDepositInTheSummary
-
-	| anAccount anotherAccount |
-	
-	anAccount := ReceptiveAccount new.
-	anotherAccount := ReceptiveAccount new.
-	Transfer amount: 100*peso from: anAccount to: anotherAccount.
-
-	self assert: (OrderedCollection with: 'Entrada por transferencia de 100 pesos' with: 'Balance = 100 pesos') equals: anotherAccount summary.! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:15:39'!
-test15AReceptiveAccountWithNoTransfersHasNetTransferZero
-
-	| anAccount |
-	
-	anAccount := ReceptiveAccount new.
-	
-	self assert: 0 * peso equals: anAccount netTransfer! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:16:45'!
-test16AReceptiveAccountWithATransferAsAnOriginAccountHasNegativeNetTransfer
-
-	| anOriginAccount aDestinationAccount |
-	
-	anOriginAccount := ReceptiveAccount new.
-	aDestinationAccount := ReceptiveAccount new.
-	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
-
-	self assert: -100 * peso equals: anOriginAccount netTransfer! !
-
-!ReceptiveAccountTest methodsFor: 'tests' stamp: 'TK 11/30/2021 15:17:22'!
-test17AReceptiveAccountWithATransferAsADestinationAccountHasPositiveNetTransfer
-
-	| anOriginAccount aDestinationAccount |
-	
-	anOriginAccount := ReceptiveAccount new.
-	aDestinationAccount := ReceptiveAccount new.
-	Transfer amount: 100 * peso from: anOriginAccount to: aDestinationAccount.
-
-	self assert: 100 * peso equals: aDestinationAccount netTransfer! !
-
 
 !classDefinition: #TransferTest category: 'ServiciosFinancieros-Parte2'!
 TestCase subclass: #TransferTest
@@ -488,7 +556,7 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:07:03'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:07:03'!
 test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAccount
 
 	| destinationAccount originAccount |
@@ -504,7 +572,7 @@ test01ATransferDecreasesBalanceFromOriginAccountAndIncreasesItForDestinationAcco
 	self assert: 8 * peso equals: originAccount balance.
 	self assert: 12 * peso equals: destinationAccount balance.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 21:12:28'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 21:12:28'!
 test02ATransferKnowsItsValue
 
 	| destinationAccount originAccount transfer |
@@ -519,7 +587,7 @@ test02ATransferKnowsItsValue
 	
 	self assert: 2 * peso equals: transfer value.! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:44'!
 test03DepositLegKnowsItsWithdrawCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -534,7 +602,7 @@ test03DepositLegKnowsItsWithdrawCounterpart
 	
 	self assert: transfer withdrawLeg equals: transfer depositLeg withdrawLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:01:51'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:01:51'!
 test04WithdrawLegKnowsItsDepositCounterpart
 
 	| destinationAccount originAccount transfer |
@@ -549,7 +617,7 @@ test04WithdrawLegKnowsItsDepositCounterpart
 	
 	self assert: transfer depositLeg equals: transfer withdrawLeg depositLeg! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:36'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:36'!
 test05OriginAndDestinationAccountsCannotBeTheSame
 
 	| originAccount |
@@ -565,7 +633,7 @@ test05OriginAndDestinationAccountsCannotBeTheSame
 		]
 ! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 23:02:44'!
+!TransferTest methodsFor: 'tests' stamp: 'LL 9/20/2020 23:02:44'!
 test06CannotTransferAZeroAmount
 
 	| originAccount destinationAccount |
@@ -583,33 +651,6 @@ test06CannotTransferAZeroAmount
 			self assert: 10 * peso equals: originAccount balance.
 		]
 ! !
-
-
-!classDefinition: #XXXXTest category: 'ServiciosFinancieros-Parte2'!
-TestCase subclass: #XXXXTest
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'ServiciosFinancieros-Parte2'!
-
-!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:26:18'!
-test01
-
-	self assert: OrderedCollection new equals: Portfolio new portfolioTree! !
-
-!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:29:35'!
-test02
-
-	self assert: (OrderedCollection with: 'Test portfolio') equals: (Portfolio named: 'Test portfolio') portfolioTree! !
-
-!XXXXTest methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:38:04'!
-test03
-
-	| aPortfolio |
-	
-	aPortfolio := Portfolio named: 'Test portfolio' with: (ReceptiveAccount named: 'Test account').
-
-	self assert: (OrderedCollection with: 'Test portfolio' with: '    Test account') equals: aPortfolio portfolioTree! !
 
 
 !classDefinition: #Account category: 'ServiciosFinancieros-Parte2'!
@@ -659,7 +700,7 @@ addTransactionsTo: aCollectionOfTransactions
 
 !classDefinition: #Portfolio category: 'ServiciosFinancieros-Parte2'!
 Account subclass: #Portfolio
-	instanceVariableNames: 'accounts parents portfolioName receptiveAccount'
+	instanceVariableNames: 'accounts parents portfolioName'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
@@ -670,6 +711,19 @@ initialize
 	accounts := OrderedCollection new.
 	parents := OrderedCollection new.! !
 
+!Portfolio methodsFor: 'initialization' stamp: 'MW 12/4/2021 12:46:28'!
+initializeAPortfolioNamed: aPortfolioName with: aReceptiveAccount 
+
+	portfolioName := aPortfolioName.
+	accounts := OrderedCollection with: aReceptiveAccount.
+	parents := OrderedCollection new! !
+
+!Portfolio methodsFor: 'initialization' stamp: 'MW 12/4/2021 12:49:22'!
+initializeAPortfolioNamed: aPortfolioName with: aReceptiveAccount with: anotherReceptiveAccount 
+	portfolioName := aPortfolioName.
+	accounts := OrderedCollection with: aReceptiveAccount with: anotherReceptiveAccount .
+	parents := OrderedCollection new.! !
+
 !Portfolio methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:31:13'!
 initializeWith: aPortfolioName 
 
@@ -677,13 +731,14 @@ initializeWith: aPortfolioName
 	accounts := OrderedCollection new.
 	parents := OrderedCollection new.! !
 
-!Portfolio methodsFor: 'initialization' stamp: 'TK 12/3/2021 16:42:02'!
-initializeWith: aPortfolioName with: aReceptiveAccount 
+!Portfolio methodsFor: 'initialization' stamp: 'MW 12/4/2021 19:42:52'!
+name
+	^portfolioName ! !
 
-	portfolioName := aPortfolioName.
-	accounts := OrderedCollection with: aReceptiveAccount.
-	parents := OrderedCollection new! !
 
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:30:55'!
+accounts
+	^accounts.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 11:13:38'!
 balance
@@ -700,18 +755,10 @@ netTransfer
 
 	^(AccountNetTransfer of: self) compute.! !
 
-!Portfolio methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:46:36'!
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:32:00'!
 portfolioTree
 	
-	| tree |
-	
-	tree := OrderedCollection new.
-	
-	(portfolioName = nil) ifTrue: [ ^ OrderedCollection new ].
-	tree add: portfolioName.
-	accounts isEmpty ifFalse: [  tree add: '    ', accounts first name ].
-	
-	^ tree! !
+	^(PortfolioTree of: self) compute.! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 12/2/2021 20:58:57'!
 summary
@@ -803,35 +850,46 @@ signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
 
+
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 12/4/2021 20:38:41'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitPortfolio: self! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Parte2'!
 Portfolio class
 	instanceVariableNames: ''!
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:48:55'!
+!Portfolio class methodsFor: 'errors' stamp: 'HAW 5/25/2019 11:48:55'!
 canNotAddAccountErrorMessage
 	
 	^'Can not add repeated account to a portfolio'! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:30:49'!
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'TK 12/3/2021 16:30:49'!
 named: aPortfolioName 
 	
 	^ self new initializeWith: aPortfolioName! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:40:47'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'MW 12/4/2021 12:46:28'!
 named: aPortfolioName with: aReceptiveAccount 
 	
-	^ self new initializeWith: aPortfolioName with: aReceptiveAccount! !
+	^ self new initializeAPortfolioNamed: aPortfolioName with: aReceptiveAccount! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:18:21'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'MW 12/4/2021 12:47:02'!
+named: aPortfolioName with: aReceptiveAccount with: anotherReceptiveAccount 
+	^self new initializeAPortfolioNamed: aPortfolioName with: aReceptiveAccount with: anotherReceptiveAccount .! !
+
+!Portfolio class methodsFor: 'instance creation' stamp: 'HAW 5/25/2019 11:18:21'!
 with: anAccount
 
 	^self new 
 		add: anAccount;
 		yourself! !
 
-!Portfolio class methodsFor: 'as yet unclassified' stamp: 'HAW 5/25/2019 11:23:59'!
+!Portfolio class methodsFor: 'instance creation' stamp: 'HAW 5/25/2019 11:23:59'!
 with: anAccount with: anotherAccount
 
 	^self new 
@@ -917,13 +975,19 @@ isComposedBy: anAccount
 
 	^self = anAccount ! !
 
+
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 12/4/2021 20:39:03'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitReceptiveAccount: self! !
+
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'ReceptiveAccount class' category: 'ServiciosFinancieros-Parte2'!
 ReceptiveAccount class
 	instanceVariableNames: ''!
 
-!ReceptiveAccount class methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:39:43'!
+!ReceptiveAccount class methodsFor: 'instance creation' stamp: 'TK 12/3/2021 16:39:43'!
 named: aReceptiveAccountName
 
 	^ self new initializeWith: aReceptiveAccountName! !
@@ -936,25 +1000,26 @@ Object subclass: #AccountNetTransfer
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:10:38'!
+!AccountNetTransfer methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:10:38'!
 compute
 	account transactions do: [ :aTransaction | aTransaction accept: self	].
 	^netTransfer.! !
 
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:04:05'!
-initializeWith: anAccount
-	account := anAccount.
-	netTransfer := 0 * peso! !
-
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:09:25'!
+!AccountNetTransfer methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:09:25'!
 visitTransferDepositLeg: aDeposit
 
 	netTransfer := netTransfer + aDeposit value! !
 
-!AccountNetTransfer methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:09:19'!
+!AccountNetTransfer methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:09:19'!
 visitTransferWithdrawLeg: aTransferWithdrawLeg
 
 	netTransfer := netTransfer - aTransferWithdrawLeg value! !
+
+
+!AccountNetTransfer methodsFor: 'initialization' stamp: 'MW 12/3/2021 10:04:05'!
+initializeWith: anAccount
+	account := anAccount.
+	netTransfer := 0 * peso! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -975,35 +1040,36 @@ Object subclass: #AccountSummary
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:18:02'!
+!AccountSummary methodsFor: 'initialization' stamp: 'MW 12/3/2021 10:17:57'!
+initializeWith: anAccount	
+	summary := OrderedCollection new.
+	account := anAccount
+	! !
+
+
+!AccountSummary methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:18:02'!
 compute
 	account transactions do: [ :aTransaction | aTransaction accept: self	].
 	summary add: ('Balance = ', account balance asString).
 	^ summary
 	! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'MW 12/3/2021 10:17:57'!
-initializeWith: anAccount	
-	summary := OrderedCollection new.
-	account := anAccount
-	! !
-
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:07:47'!
+!AccountSummary methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:07:47'!
 visitDeposit: aDeposit
 
 	summary add: ('Depósito por ', aDeposit value asString)! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:21'!
+!AccountSummary methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:02:21'!
 visitTransferDepositLeg: aDepositLeg
 
 	summary add: ('Entrada por transferencia de ', aDepositLeg value asString)! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:03:56'!
+!AccountSummary methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:03:56'!
 visitTransferWithdrawLeg: aWithdrawLeg
 
 	summary add: ('Salida por transferencia de ', aWithdrawLeg value asString)! !
 
-!AccountSummary methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:17:06'!
+!AccountSummary methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:17:06'!
 visitWithdraw: aWithdraw
 
 	summary add: ('Extracción por ', aWithdraw value asString)! !
@@ -1085,8 +1151,7 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-
-!Deposit class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:00'!
+!Deposit class methodsFor: 'instance creation' stamp: 'LL 7/8/2021 21:45:00'!
 register: aValue on: account
 
 	| transaction |
@@ -1121,7 +1186,7 @@ initializeWith: aTransfer
 TransferLeg class
 	instanceVariableNames: ''!
 
-!TransferLeg class methodsFor: 'as yet unclassified' stamp: 'LL 9/20/2020 22:45:01'!
+!TransferLeg class methodsFor: 'instance creation' stamp: 'LL 9/20/2020 22:45:01'!
 of: aTransfer on: anAccount
 
 	| transaction |
@@ -1223,8 +1288,7 @@ for: aValue
 
 	^ self new initializeFor: aValue ! !
 
-
-!Withdraw class methodsFor: 'as yet unclassified' stamp: 'LL 7/8/2021 21:45:05'!
+!Withdraw class methodsFor: 'instance creation' stamp: 'LL 7/8/2021 21:45:05'!
 register: aValue on: account
 
 	| transaction |
@@ -1233,6 +1297,54 @@ register: aValue on: account
 	account register: transaction.
 		
 	^ transaction! !
+
+
+!classDefinition: #PortfolioTree category: 'ServiciosFinancieros-Parte2'!
+Object subclass: #PortfolioTree
+	instanceVariableNames: 'portfolio tree'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'ServiciosFinancieros-Parte2'!
+
+!PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:44:41'!
+addChildAccounts
+
+	^ portfolio accounts isEmpty ifFalse: [ 
+			portfolio accounts do: [ :anAccount | anAccount accept: self]
+		]! !
+
+!PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:44:10'!
+compute
+	
+	(portfolio name = nil) ifTrue: [ ^ OrderedCollection new ].
+	tree add: portfolio name.
+	self addChildAccounts.
+	
+	^ tree! !
+
+!PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:50:13'!
+visitPortfolio: aPortfolio
+	aPortfolio portfolioTree do: [ :aChildPortfolioBranch | tree add: '    ', aChildPortfolioBranch]! !
+
+!PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:34:45'!
+visitReceptiveAccount: anAccount
+	tree add: '    ', anAccount name.! !
+
+
+!PortfolioTree methodsFor: 'initialization' stamp: 'MW 12/4/2021 20:23:49'!
+initializeWith: aPortfolio
+	portfolio := aPortfolio.
+	tree := OrderedCollection new.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PortfolioTree class' category: 'ServiciosFinancieros-Parte2'!
+PortfolioTree class
+	instanceVariableNames: ''!
+
+!PortfolioTree class methodsFor: 'instance creation' stamp: 'MW 12/4/2021 20:23:17'!
+of: aPortfolio
+	^self new initializeWith: aPortfolio! !
 
 
 !classDefinition: #Transfer category: 'ServiciosFinancieros-Parte2'!
