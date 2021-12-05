@@ -660,6 +660,11 @@ Object subclass: #Account
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
+!Account methodsFor: 'main protocol' stamp: 'TK 12/5/2021 20:35:46'!
+accept: anExpressionVisitor
+
+	self subclassResponsibility! !
+
 !Account methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 12:23:40'!
 balance
 
@@ -736,9 +741,10 @@ name
 	^portfolioName ! !
 
 
-!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:30:55'!
-accounts
-	^accounts.! !
+!Portfolio methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:38:41'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitPortfolio: self! !
 
 !Portfolio methodsFor: 'main protocol' stamp: 'MW 11/30/2021 11:13:38'!
 balance
@@ -774,6 +780,11 @@ transactions
 	accounts do: [ :anAccount | anAccount addTransactionsTo: transactions ].
 	
 	^transactions ! !
+
+!Portfolio methodsFor: 'main protocol' stamp: 'TK 12/5/2021 20:42:49'!
+withAccountsDo: anOperation
+
+	accounts do: [ :anAccount | anOperation value: anAccount ]! !
 
 
 !Portfolio methodsFor: 'accounts management' stamp: 'HAW 5/25/2019 11:49:20'!
@@ -850,12 +861,6 @@ signalCanNotAddAccount
 	
 	self error: self class canNotAddAccountErrorMessage! !
 
-
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'MW 12/4/2021 20:38:41'!
-accept: anExpressionVisitor
-
-	anExpressionVisitor visitPortfolio: self! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Portfolio class' category: 'ServiciosFinancieros-Parte2'!
@@ -917,6 +922,11 @@ initializeWith: aReceptiveAccountName
 	receptiveAccountName := aReceptiveAccountName.! !
 
 
+!ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:39:03'!
+accept: anExpressionVisitor
+
+	anExpressionVisitor visitReceptiveAccount: self! !
+
 !ReceptiveAccount methodsFor: 'main protocol' stamp: 'MW 11/30/2021 10:30:19'!
 balance
 
@@ -974,12 +984,6 @@ addedTo: aPortfolio
 isComposedBy: anAccount
 
 	^self = anAccount ! !
-
-
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'MW 12/4/2021 20:39:03'!
-accept: anExpressionVisitor
-
-	anExpressionVisitor visitReceptiveAccount: self! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1306,12 +1310,10 @@ Object subclass: #PortfolioTree
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:44:41'!
+!PortfolioTree methodsFor: 'main protocol' stamp: 'TK 12/5/2021 20:44:30'!
 addChildAccounts
 
-	^ portfolio accounts isEmpty ifFalse: [ 
-			portfolio accounts do: [ :anAccount | anAccount accept: self]
-		]! !
+	portfolio withAccountsDo: [ :anAccount | anAccount accept: self ]! !
 
 !PortfolioTree methodsFor: 'main protocol' stamp: 'MW 12/4/2021 20:44:10'!
 compute
