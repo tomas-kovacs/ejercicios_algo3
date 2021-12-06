@@ -1127,22 +1127,20 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Deposit methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:38'!
-value
+!Deposit methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:06:51'!
+accept: anExpressionVisitor
 
-	^ value! !
+	anExpressionVisitor visitDeposit: self! !
 
-
-!Deposit methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:02'!
+!Deposit methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:25:02'!
 affectBalance: aBalance
 
 	^aBalance + value ! !
 
+!Deposit methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:38'!
+value
 
-!Deposit methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:06:51'!
-accept: anExpressionVisitor
-
-	anExpressionVisitor visitDeposit: self! !
+	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1173,7 +1171,7 @@ AccountTransaction subclass: #TransferLeg
 	poolDictionaries: ''
 	category: 'ServiciosFinancieros-Parte2'!
 
-!TransferLeg methodsFor: 'value' stamp: 'LL 9/20/2020 22:27:32'!
+!TransferLeg methodsFor: 'main protocol' stamp: 'LL 9/20/2020 22:27:32'!
 value
 
 	^transfer value! !
@@ -1214,16 +1212,15 @@ withdrawLeg
 	^transfer withdrawLeg! !
 
 
-!TransferDepositLeg methodsFor: 'balance' stamp: 'LL 9/20/2020 22:27:49'!
-affectBalance: aBalance
-
-	^aBalance + self value! !
-
-
-!TransferDepositLeg methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:21'!
+!TransferDepositLeg methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:02:21'!
 accept: anExpressionVisitor
 
 	anExpressionVisitor visitTransferDepositLeg: self! !
+
+!TransferDepositLeg methodsFor: 'main protocol' stamp: 'LL 9/20/2020 22:27:49'!
+affectBalance: aBalance
+
+	^aBalance + self value! !
 
 
 !classDefinition: #TransferWithdrawLeg category: 'ServiciosFinancieros-Parte2'!
@@ -1239,16 +1236,15 @@ depositLeg
 	^transfer depositLeg! !
 
 
-!TransferWithdrawLeg methodsFor: 'balance' stamp: 'LL 9/20/2020 22:27:55'!
-affectBalance: aBalance
-
-	^aBalance - self value! !
-
-
-!TransferWithdrawLeg methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:02:47'!
+!TransferWithdrawLeg methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:02:47'!
 accept: anExpressionVisitor
 
 	anExpressionVisitor visitTransferWithdrawLeg: self! !
+
+!TransferWithdrawLeg methodsFor: 'main protocol' stamp: 'LL 9/20/2020 22:27:55'!
+affectBalance: aBalance
+
+	^aBalance - self value! !
 
 
 !classDefinition: #Withdraw category: 'ServiciosFinancieros-Parte2'!
@@ -1264,22 +1260,20 @@ initializeFor: aValue
 	value := aValue ! !
 
 
-!Withdraw methodsFor: 'value' stamp: 'HernanWilkinson 7/13/2011 18:33'!
-value
+!Withdraw methodsFor: 'main protocol' stamp: 'TK 12/3/2021 16:16:19'!
+accept: anExpressionVisitor
 
-	^ value! !
+	anExpressionVisitor visitWithdraw: self! !
 
-
-!Withdraw methodsFor: 'balance' stamp: 'HAW 5/25/2019 11:25:15'!
+!Withdraw methodsFor: 'main protocol' stamp: 'HAW 5/25/2019 11:25:15'!
 affectBalance: aBalance
 
 	^aBalance - value! !
 
+!Withdraw methodsFor: 'main protocol' stamp: 'HernanWilkinson 7/13/2011 18:33'!
+value
 
-!Withdraw methodsFor: 'as yet unclassified' stamp: 'TK 12/3/2021 16:16:19'!
-accept: anExpressionVisitor
-
-	anExpressionVisitor visitWithdraw: self! !
+	^ value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
